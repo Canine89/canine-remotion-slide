@@ -125,7 +125,7 @@ const spawnAndWait = (command, commandArgs, sourcePath) =>
     const child = spawn(command, commandArgs, {
       cwd: repoRoot,
       stdio: "inherit",
-      shell: false,
+      shell: true,
       env: {
         ...process.env,
         SLIDE_MARKDOWN_FILE: sourcePath,
