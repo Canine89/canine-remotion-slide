@@ -1,0 +1,24 @@
+{
+  "baseTheme": "parchment",
+  "default": {
+    "bg": "#faf9f7",
+    "title": "#000000",
+    "text": "#55534e",
+    "accent": "#078a52",
+    "badge": [
+      { "bg": "#02492a", "text": "#ffffff" },
+      { "bg": "#43089f", "text": "#ffffff" }
+    ],
+    "badgeDefaultVariant": 0,
+    "titleLetterSpacing": "-3.2px",
+    "titleLineHeight": 1.0,
+    "bodyLetterSpacing": "-0.36px",
+    "bodyLineHeight": 1.6,
+    "badgeRadius": 999,
+    "badgeFontSize": 36,
+    "badgeLetterSpacing": "1.08px",
+    "titleTextStroke": "0px transparent",
+    "titleTextShadow": "none",
+    "bulletMarker": "•"
+  }
+}

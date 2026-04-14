@@ -1,0 +1,28 @@
+{
+  "name": "canine-remotion-slide",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "preview": "remotion preview src/index.ts",
+    "render": "echo \"Use: npm run slides:render -- <file.md> [slides|shorts|both] [output-prefix]\"",
+    "build": "echo \"Use: npm run slides:render -- <file.md> [slides|shorts|both] [output-prefix]\"",
+    "present": "vite --config src/presenter/vite.config.ts",
+    "slides:use": "node src/scripts/slide-markdown.mjs use",
+    "slides:preview": "node src/scripts/slide-markdown.mjs preview",
+    "slides:present": "node src/scripts/slide-markdown.mjs present",
+    "slides:render": "node src/scripts/slide-markdown.mjs render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.261",
+    "@remotion/transitions": "^4.0.261",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.261"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.7.0",
+    "vite": "^8.0.8"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules/
+out/
+.DS_Store
+.claude/settings.local.json
+.claude/projects/
+.codex/
