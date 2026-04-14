@@ -78,6 +78,43 @@ export type SlideData =
       duration?: number;
     }
   | {
+      type: "stat";
+      badge: string;
+      badgeVariant?: 0 | 1;
+      title: string;
+      stats: { value: string; label: string; visual?: { type: "bar" | "ring"; ratio: number } }[];
+      theme?: ThemeDirective;
+      duration?: number;
+    }
+  | {
+      type: "quote";
+      badge: string;
+      badgeVariant?: 0 | 1;
+      title: string;
+      quote: string;
+      attribution?: string;
+      theme?: ThemeDirective;
+      duration?: number;
+    }
+  | {
+      type: "steps";
+      badge: string;
+      badgeVariant?: 0 | 1;
+      title: string;
+      steps: string[];
+      theme?: ThemeDirective;
+      duration?: number;
+    }
+  | {
+      type: "compare";
+      badge: string;
+      badgeVariant?: 0 | 1;
+      title: string;
+      columns: { heading: string; bullets: string[] }[];
+      theme?: ThemeDirective;
+      duration?: number;
+    }
+  | {
       type: "evolution-flow";
       badge: string;
       badgeVariant?: 0 | 1;

@@ -8,6 +8,11 @@ const BULLET_PREFIX = /^[-*•–—]\s+(.+)$/;
 const ABSTRACT_PROMPT_PREFIX = /^~\s+(.+)$/;
 const ABSTRACT_LABEL_PREFIX = /^\[([^\]]+)\]\s+(.+)$/;
 const EVOLUTION_SECTION_PREFIX = /^(<<|==|>>)\s*(.*)$/;
+const STAT_PREFIX = /^\$\s+(.+)$/;
+const QUOTE_PREFIX = /^""\s+(.+)$/;
+const ATTRIBUTION_PREFIX = /^[—–-]{1,2}\s+(.+)$/;
+const NUMBERED_STEP_PREFIX = /^\d+\.\s+(.+)$/;
+const COMPARE_COLUMN_PREFIX = /^\|\|\s+(.+)$/;
 
 function parseFrontmatter(raw: string): {
   frontmatter: ParsedFrontmatter;
@@ -118,6 +123,15 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
     let toImage = "";
     const toBullets: string[] = [];
 
+    const statItems: { value: string; label: string; visual?: { type: "bar" | "ring"; ratio: number } }[] = [];
+    let pendingStatValue = "";
+    let pendingStatVisual: { type: "bar" | "ring"; ratio: number } | undefined;
+    let quoteText = "";
+    let attribution = "";
+    const numberedSteps: string[] = [];
+    const compareColumns: { heading: string; bullets: string[] }[] = [];
+    let currentCompareColumn: { heading: string; bullets: string[] } | null = null;
+
     let headingDone = false;
     let collectingSubtitle = false;
 
@@ -125,6 +139,11 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
       const trimmed = line.trim();
       if (!trimmed) {
         collectingSubtitle = false;
+        if (pendingStatValue) {
+          statItems.push({ value: pendingStatValue, label: "", visual: pendingStatVisual });
+          pendingStatValue = "";
+          pendingStatVisual = undefined;
+        }
         continue;
       }
 
@@ -176,6 +195,83 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
         }
 
         direction = direction ? `${direction} ${promptText}` : promptText;
+        continue;
+      }
+
+      // stat ($ 숫자 [visual])
+      const statMatch = trimmed.match(STAT_PREFIX);
+      if (statMatch) {
+        collectingSubtitle = false;
+        if (pendingStatValue) {
+          statItems.push({ value: pendingStatValue, label: "", visual: pendingStatVisual });
+        }
+        let raw = statMatch[1].trim();
+        pendingStatVisual = undefined;
+        const visualMatch = raw.match(/\[(bar|ring)(?::(\d+))?\]\s*$/);
+        if (visualMatch) {
+          pendingStatVisual = {
+            type: visualMatch[1] as "bar" | "ring",
+            ratio: visualMatch[2] ? parseInt(visualMatch[2]) : 70,
+          };
+          raw = raw.replace(/\s*\[(bar|ring)(?::\d+)?\]\s*$/, "").trim();
+        }
+        pendingStatValue = raw;
+        continue;
+      }
+
+      // stat label ($ 다음 줄)
+      if (pendingStatValue) {
+        statItems.push({ value: pendingStatValue, label: trimmed, visual: pendingStatVisual });
+        pendingStatValue = "";
+        pendingStatVisual = undefined;
+        collectingSubtitle = false;
+        continue;
+      }
+
+      // quote ("" 인용)
+      const quoteMatch = trimmed.match(QUOTE_PREFIX);
+      if (quoteMatch) {
+        collectingSubtitle = false;
+        quoteText = quoteMatch[1].trim();
+        continue;
+      }
+
+      // attribution (— 출처)
+      if (quoteText) {
+        const attrMatch = trimmed.match(ATTRIBUTION_PREFIX);
+        if (attrMatch) {
+          collectingSubtitle = false;
+          attribution = attrMatch[1].trim();
+          continue;
+        }
+      }
+
+      // compare (|| 컬럼)
+      const compareMatch = trimmed.match(COMPARE_COLUMN_PREFIX);
+      if (compareMatch) {
+        collectingSubtitle = false;
+        if (currentCompareColumn) {
+          compareColumns.push(currentCompareColumn);
+        }
+        currentCompareColumn = { heading: compareMatch[1].trim(), bullets: [] };
+        continue;
+      }
+
+      // compare 컬럼 내 불릿
+      if (currentCompareColumn) {
+        const compareBulletMatch = trimmed.match(BULLET_PREFIX);
+        if (compareBulletMatch) {
+          collectingSubtitle = false;
+          currentCompareColumn.bullets.push(compareBulletMatch[1].trim());
+          continue;
+        }
+      }
+
+      // numbered steps (1. 2. 3.)
+      const numberedMatch = trimmed.match(NUMBERED_STEP_PREFIX);
+      if (numberedMatch) {
+        collectingSubtitle = false;
+        numberedSteps.push(numberedMatch[1].trim());
         continue;
       }
 
@@ -267,6 +363,17 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
       }
     }
 
+    // flush
+    if (pendingStatValue) {
+      statItems.push({ value: pendingStatValue, label: "", visual: pendingStatVisual });
+      pendingStatValue = "";
+      pendingStatVisual = undefined;
+    }
+    if (currentCompareColumn) {
+      compareColumns.push(currentCompareColumn);
+      currentCompareColumn = null;
+    }
+
     // 타입 자동 감지
     const base = { badge, badgeVariant, theme } as const;
 
@@ -294,6 +401,14 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
         toImage: toImage || undefined,
         toBullets,
       });
+    } else if (statItems.length > 0) {
+      slides.push({ type: "stat", ...base, title, stats: statItems });
+    } else if (quoteText) {
+      slides.push({ type: "quote", ...base, title, quote: quoteText, attribution: attribution || undefined });
+    } else if (compareColumns.length > 0) {
+      slides.push({ type: "compare", ...base, title, columns: compareColumns });
+    } else if (numberedSteps.length > 0) {
+      slides.push({ type: "steps", ...base, title, steps: numberedSteps });
     } else if (image && bullets.length > 0) {
       slides.push({ type: "split", ...base, title, image, bullets });
     } else if (image) {

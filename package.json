@@ -10,11 +10,13 @@
     "slides:use": "node src/scripts/slide-markdown.mjs use",
     "slides:preview": "node src/scripts/slide-markdown.mjs preview",
     "slides:present": "node src/scripts/slide-markdown.mjs present",
-    "slides:render": "node src/scripts/slide-markdown.mjs render"
+    "slides:render": "node src/scripts/slide-markdown.mjs render",
+    "slides:pdf": "node src/scripts/slide-markdown.mjs pdf"
   },
   "dependencies": {
     "@remotion/cli": "4.0.261",
     "@remotion/transitions": "^4.0.261",
+    "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remotion": "4.0.261"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useLayoutEffect, useState, useCallback } from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -67,6 +67,43 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
   theme,
 }) => {
   const frame = useCurrentFrame();
+  const gridRef = useRef<HTMLDivElement>(null);
+  const leftBadgeRef = useRef<HTMLDivElement>(null);
+  const rightBadgeRef = useRef<HTMLDivElement>(null);
+  const [arrow, setArrow] = useState<{ x1: number; x2: number; y: number } | null>(null);
+
+  const measure = useCallback(() => {
+    const grid = gridRef.current;
+    const lb = leftBadgeRef.current;
+    const rb = rightBadgeRef.current;
+    if (!grid || !lb || !rb) return;
+
+    // offsetLeft/offsetTop/offsetWidth는 transform에 영향 받지 않음
+    const getOffsetTo = (el: HTMLElement, ancestor: HTMLElement) => {
+      let x = 0, y = 0;
+      let cur: HTMLElement | null = el;
+      while (cur && cur !== ancestor) {
+        x += cur.offsetLeft;
+        y += cur.offsetTop;
+        cur = cur.offsetParent as HTMLElement | null;
+      }
+      return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+    };
+
+    const lb2 = getOffsetTo(lb, grid);
+    const rb2 = getOffsetTo(rb, grid);
+
+    setArrow({
+      x1: lb2.x + lb2.w,
+      x2: rb2.x,
+      y: lb2.y + lb2.h / 2,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [measure]);
+
   const leftReveal = reveal(frame, 8, 22, -40);
   const centerReveal = reveal(frame, 22, 38, 0);
   const rightReveal = reveal(frame, 36, 52, 40);
@@ -107,19 +144,22 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
         <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
         <SlideTitle text={title} color={theme.title} theme={theme} />
 
+        {/* 2열 콘텐츠 (배지 포함) + 화살표 오버레이 */}
         <div
+          ref={gridRef}
           style={{
             width: "100%",
+            position: "relative",
             display: "grid",
-            gridTemplateColumns: "1fr 0.42fr 1fr",
-            gap: 28,
-            alignItems: "center",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 60,
+            alignItems: "start",
             marginTop: 28,
-            minHeight: 420,
           }}
         >
           <FlowSide
             badge={fromBadge}
+            badgeRef={leftBadgeRef}
             title={fromTitle}
             image={fromImage}
             bullets={fromBullets}
@@ -133,58 +173,9 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
             }}
           />
 
-          <div
-            style={{
-              opacity: centerReveal.opacity,
-              transform: `translateX(${centerReveal.translateX}px)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              alignSelf: "center",
-              width: "100%",
-              position: "relative",
-            }}
-          >
-            <svg
-              viewBox="0 0 320 40"
-              style={{
-                width: "100%",
-                transform: `scaleX(${lineScale})`,
-                transformOrigin: "left center",
-                overflow: "visible",
-              }}
-            >
-              <line
-                x1="8"
-                y1="20"
-                x2="276"
-                y2="20"
-                stroke={arrowBase}
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <line
-                x1="8"
-                y1="20"
-                x2="276"
-                y2="20"
-                stroke={arrowStroke}
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeDasharray="18 18"
-                strokeDashoffset={dashOffset}
-                opacity={flowOpacity}
-              />
-              <polygon
-                points="276,9 308,20 276,31"
-                fill={arrowStroke}
-                opacity={Math.max(flowOpacity, 0.82)}
-              />
-            </svg>
-          </div>
-
           <FlowSide
             badge={toBadge}
+            badgeRef={rightBadgeRef}
             title={toTitle}
             image={toImage}
             bullets={toBullets}
@@ -197,6 +188,50 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
               transform: `translateX(${rightReveal.translateX}px)`,
             }}
           />
+
+          {/* 화살표 오버레이 — 배지 위치 측정 기반 */}
+          {arrow && (() => {
+            const pad = 10;
+            const headLen = 28;
+            const x1 = arrow.x1 + pad;
+            const tip = arrow.x2 - pad;
+            const lineEnd = tip - headLen;
+            return (
+              <svg
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: arrow.y + 30,
+                  pointerEvents: "none",
+                  overflow: "visible",
+                  opacity: centerReveal.opacity,
+                }}
+              >
+                <line
+                  x1={x1} y1={arrow.y} x2={lineEnd} y2={arrow.y}
+                  stroke={arrowBase}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={x1} y1={arrow.y} x2={lineEnd} y2={arrow.y}
+                  stroke={arrowStroke}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray="18 18"
+                  strokeDashoffset={dashOffset}
+                  opacity={flowOpacity}
+                />
+                <polygon
+                  points={`${lineEnd},${arrow.y - 11} ${tip},${arrow.y} ${lineEnd},${arrow.y + 11}`}
+                  fill={arrowStroke}
+                  opacity={Math.max(flowOpacity, 0.82)}
+                />
+              </svg>
+            );
+          })()}
         </div>
       </div>
     </AbsoluteFill>
@@ -205,6 +240,7 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
 
 const FlowSide: React.FC<{
   badge?: string;
+  badgeRef?: React.RefObject<HTMLDivElement | null>;
   title?: string;
   image?: string;
   bullets: string[];
@@ -213,26 +249,27 @@ const FlowSide: React.FC<{
   theme: ThemeColors;
   align: "left" | "right";
   style: React.CSSProperties;
-}> = ({ badge, title, image, bullets, titleColor, textColor, theme, align, style }) => {
+}> = ({ badge, badgeRef, title, image, bullets, titleColor, textColor, theme, align, style }) => {
   return (
     <div
       style={{
         ...style,
-        minHeight: 420,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         gap: 18,
       }}
     >
       {badge ? (
         <div style={{ display: "flex", justifyContent: "flex-start" }}>
-          <Badge
-            text={badge}
-            bgColor={theme.badge[1]?.bg ?? theme.badge[0].bg}
-            textColor={theme.badge[1]?.text ?? theme.badge[0].text}
-            theme={theme}
-          />
+          <div ref={badgeRef} style={{ display: "inline-flex" }}>
+            <Badge
+              text={badge}
+              bgColor={theme.badge[1]?.bg ?? theme.badge[0].bg}
+              textColor={theme.badge[1]?.text ?? theme.badge[0].text}
+              theme={theme}
+            />
+          </div>
         </div>
       ) : null}
 
@@ -272,22 +309,13 @@ const FlowSide: React.FC<{
         />
       )}
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-        }}
-      >
-        <div style={{ width: "min(100%, 520px)" }}>
-          <BulletList
-            items={bullets}
-            color={textColor}
-            fontSize={38}
-            startFrame={20}
-            theme={theme}
-          />
-        </div>
-      </div>
+      <BulletList
+        items={bullets}
+        color={textColor}
+        fontSize={38}
+        startFrame={20}
+        theme={theme}
+      />
     </div>
   );
 };

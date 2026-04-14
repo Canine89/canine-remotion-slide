@@ -14,6 +14,7 @@ Usage:
   npm run slides:present -- /absolute/or/relative/file.md
   npm run slides:preview -- /absolute/or/relative/file.md
   npm run slides:render -- /absolute/or/relative/file.md [slides|shorts|both] [output-prefix]
+  npm run slides:pdf -- /absolute/or/relative/file.md [output.pdf]
 `.trim();
 
 const run = async () => {
@@ -90,6 +91,71 @@ const run = async () => {
       ], sourcePath);
       console.log(`Rendered shorts: ${shortOutput}`);
     }
+    return;
+  }
+
+  if (action === "pdf") {
+    const markdownRaw = await fs.readFile(sourcePath, "utf8");
+    const fmMatch = markdownRaw.match(/^---\s*\n[\s\S]*?\n---\s*\n([\s\S]*)$/);
+    const body = fmMatch ? fmMatch[1] : markdownRaw;
+    const slideBlocks = body.split(/\n---\s*\n/).filter((b) => b.trim());
+    const slideCount = slideBlocks.length;
+
+    if (slideCount === 0) {
+      console.error("No slides found in markdown.");
+      process.exit(1);
+    }
+
+    const DURATION = 150;
+    const TRANSITION = 15;
+    const SETTLED_OFFSET = 90;
+
+    const tmpDir = path.join(repoRoot, "out", ".pdf-tmp");
+    await fs.mkdir(tmpDir, { recursive: true });
+
+    console.log(`Rendering ${slideCount} slides as PNG...`);
+    const pngPaths = [];
+    for (let i = 0; i < slideCount; i++) {
+      let startFrame = 0;
+      for (let j = 0; j < i; j++) {
+        startFrame += DURATION - TRANSITION;
+      }
+      const frame = startFrame + Math.min(SETTLED_OFFSET, DURATION - 1);
+      const outPath = path.join(tmpDir, `slide-${String(i).padStart(3, "0")}.png`);
+
+      console.log(`  [${i + 1}/${slideCount}] frame ${frame} → ${path.basename(outPath)}`);
+      await spawnAndWait("npx", [
+        "remotion", "still", "src/index.ts", "Slides-Markdown",
+        outPath, `--frame=${frame}`,
+      ], sourcePath);
+
+      pngPaths.push(outPath);
+    }
+
+    console.log("Combining PNGs into PDF...");
+    const { PDFDocument } = await import("pdf-lib");
+    const pdfDoc = await PDFDocument.create();
+
+    for (const pngPath of pngPaths) {
+      const pngBytes = await fs.readFile(pngPath);
+      const pngImage = await pdfDoc.embedPng(pngBytes);
+      const page = pdfDoc.addPage([1920, 1080]);
+      page.drawImage(pngImage, { x: 0, y: 0, width: 1920, height: 1080 });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    const baseName = path.basename(sourcePath, path.extname(sourcePath));
+    const outputPath = args[1]
+      ? path.resolve(process.cwd(), args[1])
+      : path.join(repoRoot, "out", baseName, `${baseName}.pdf`);
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
+    await fs.writeFile(outputPath, pdfBytes);
+
+    // cleanup
+    for (const p of pngPaths) await fs.unlink(p).catch(() => {});
+    await fs.rmdir(tmpDir).catch(() => {});
+
+    console.log(`PDF exported: ${outputPath}`);
     return;
   }
 

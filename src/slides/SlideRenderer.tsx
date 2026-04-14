@@ -3,6 +3,10 @@ import { SlideData } from "./types";
 import { getTheme } from "./themes";
 import { TitleSlide } from "./templates/TitleSlide";
 import { TitleImageSlide } from "./templates/TitleImageSlide";
+import { StatSlide } from "./templates/StatSlide";
+import { QuoteSlide } from "./templates/QuoteSlide";
+import { StepsSlide } from "./templates/StepsSlide";
+import { CompareSlide } from "./templates/CompareSlide";
 import { TitleTagsSlide } from "./templates/TitleTagsSlide";
 import { TitleBulletsSlide } from "./templates/TitleBulletsSlide";
 import { SplitSlide } from "./templates/SplitSlide";
@@ -86,6 +90,51 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           direction={slide.direction}
           prompts={slide.prompts}
           scenes={slide.scenes}
+          theme={theme}
+          badgeBg={badgeBg}
+          badgeText={badgeText}
+        />
+      );
+    case "stat":
+      return (
+        <StatSlide
+          badge={slide.badge}
+          title={slide.title}
+          stats={slide.stats}
+          theme={theme}
+          badgeBg={badgeBg}
+          badgeText={badgeText}
+        />
+      );
+    case "quote":
+      return (
+        <QuoteSlide
+          badge={slide.badge}
+          title={slide.title}
+          quote={slide.quote}
+          attribution={slide.attribution}
+          theme={theme}
+          badgeBg={badgeBg}
+          badgeText={badgeText}
+        />
+      );
+    case "steps":
+      return (
+        <StepsSlide
+          badge={slide.badge}
+          title={slide.title}
+          steps={slide.steps}
+          theme={theme}
+          badgeBg={badgeBg}
+          badgeText={badgeText}
+        />
+      );
+    case "compare":
+      return (
+        <CompareSlide
+          badge={slide.badge}
+          title={slide.title}
+          columns={slide.columns}
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}

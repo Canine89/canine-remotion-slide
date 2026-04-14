@@ -25,6 +25,10 @@ description: >-
 - `remotion-slide-title-bullets`
 - `remotion-slide-split`
 - `remotion-slide-evolution-flow`
+- `remotion-slide-stat`
+- `remotion-slide-quote`
+- `remotion-slide-steps`
+- `remotion-slide-compare`
 
 ## 선택 기준
 
@@ -34,6 +38,10 @@ description: >-
 - 메시지 설명 자체가 중요하면 `remotion-slide-title-bullets`
 - 이미지와 설명을 함께 보여줘야 하면 `remotion-slide-split`
 - 왼쪽 상태가 오른쪽 상태로 어떻게 바뀌는지 흐름이 중요하면 `remotion-slide-evolution-flow`
+- 숫자/KPI가 핵심이면 `remotion-slide-stat`
+- 인용구나 핵심 문장을 강조하면 `remotion-slide-quote`
+- 순서가 있는 프로세스/단계이면 `remotion-slide-steps`
+- 3개 이상 항목을 나란히 비교하면 `remotion-slide-compare`
 
 ## 공통 규칙
 

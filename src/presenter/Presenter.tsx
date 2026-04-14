@@ -41,6 +41,22 @@ const getSettledFrameOffset = (slide: SlideData) => {
   switch (slide.type) {
     case "title":
       return slide.subtitle ? subtitleDone : titleDone;
+    case "stat": {
+      const lastStatDone = 25 + (slide.stats.length - 1) * 10 + 15;
+      return Math.max(titleDone, lastStatDone + 8);
+    }
+    case "quote":
+      return slide.attribution ? 56 : 40;
+    case "steps": {
+      const lastStepDone = 28 + (slide.steps.length - 1) * 8 + 12;
+      return Math.max(titleDone, lastStepDone + 8);
+    }
+    case "compare": {
+      const lastColDone = 25 + (slide.columns.length - 1) * 8 + 14;
+      const maxBullets = Math.max(...slide.columns.map((c) => c.bullets.length));
+      const lastBulletDone = lastColDone + 10 + (maxBullets - 1) * 8 + 12;
+      return Math.max(titleDone, lastBulletDone + 8);
+    }
     case "title-bullets": {
       if (slide.bullets.length === 0) return titleDone;
       const lastBulletDone = 35 + (slide.bullets.length - 1) * 8 + 12;
@@ -80,7 +96,7 @@ const getSettledFrameOffset = (slide: SlideData) => {
 };
 
 const isContinuousSlide = (slide: SlideData | undefined) => {
-  return slide?.type === "evolution-flow";
+  return slide?.type === "evolution-flow" || slide?.type === "steps" || slide?.type === "stat";
 };
 
 const getPresenterSlides = (slides: SlideData[]) => {
@@ -110,11 +126,15 @@ export const Presenter: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoad = useRef(true);
+  const currentSlideRef = useRef(0);
+  const skipEffect = useRef(false);
   const slides = useMemo(() => getPresenterSlides(importedSlides), []);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(() =>
-    clampIndex(readStoredIndex(), slides)
-  );
+  const [currentSlide, setCurrentSlide] = useState(() => {
+    const idx = clampIndex(readStoredIndex(), slides);
+    currentSlideRef.current = idx;
+    return idx;
+  });
   const { startFrames, totalFrames } = useMemo(() => getSlideTimings(slides), [slides]);
 
   useEffect(() => {
@@ -126,14 +146,19 @@ export const Presenter: React.FC = () => {
 
     const player = playerRef.current;
     const nextSlide = clampIndex(index, slides);
-    const startFrame = startFrames[nextSlide] ?? 0;
+    const rawStart = startFrames[nextSlide] ?? 0;
+    const isBackward = nextSlide < currentSlideRef.current;
+    const transitionSkip = isBackward && nextSlide > 0 ? SLIDE_DEFAULTS.TRANSITION : 0;
+    const startFrame = rawStart + transitionSkip;
     const slideData = slides[nextSlide];
     const slideDuration = slideData?.duration ?? SLIDE_DEFAULTS.DURATION;
     const settledOffset = getSettledFrameOffset(slideData);
-    const settledFrame = startFrame + Math.min(settledOffset, slideDuration - 1);
+    const settledFrame = rawStart + Math.min(settledOffset, slideDuration - 1);
     const continuous = isContinuousSlide(slideData);
 
+    skipEffect.current = true;
     setCurrentSlide(nextSlide);
+    currentSlideRef.current = nextSlide;
 
     if (!player) return;
 
@@ -159,7 +184,8 @@ export const Presenter: React.FC = () => {
       return;
     }
 
-    const animationMs = (settledOffset / SLIDE_DEFAULTS.FPS) * 1000 + AUTO_PAUSE_BUFFER_MS;
+    const effectiveOffset = Math.max(0, settledOffset - transitionSkip);
+    const animationMs = (effectiveOffset / SLIDE_DEFAULTS.FPS) * 1000 + AUTO_PAUSE_BUFFER_MS;
     pauseTimer.current = setTimeout(() => {
       player.pause();
       player.seekTo(settledFrame);
@@ -169,6 +195,10 @@ export const Presenter: React.FC = () => {
 
   useEffect(() => {
     if (slides.length === 0) return;
+    if (skipEffect.current) {
+      skipEffect.current = false;
+      return;
+    }
     goToSlide(currentSlide);
     return () => {
       if (pauseTimer.current) clearTimeout(pauseTimer.current);

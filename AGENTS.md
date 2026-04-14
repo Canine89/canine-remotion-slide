@@ -51,7 +51,12 @@
 - `remotion-slide-title-bullets` — title-bullets 타입
 - `remotion-slide-split` — split 타입
 - `remotion-slide-evolution-flow` — evolution-flow 타입
+- `remotion-slide-stat` — stat 타입 (숫자/KPI 강조)
+- `remotion-slide-quote` — quote 타입 (인용/하이라이트)
+- `remotion-slide-steps` — steps 타입 (순차 프로세스)
+- `remotion-slide-compare` — compare 타입 (다항목 비교)
 - `remotion-shorts` — 세로형 쇼츠 생성
+- `remotion-slide-pdf` — PDF 내보내기
 - `remotion-presenter` — 발표용 프레젠터
 - `remotion-themes` — 컬러 테마 레퍼런스
 - `remotion-api` — Remotion 프레임워크 API, 트랜지션, Player, 렌더링, 성능 최적화
@@ -69,9 +74,12 @@ npm run slides:preview -- markdowns/<topic>/<topic>.md
 npm run slides:render -- markdowns/<topic>/<topic>.md slides   # 가로형만
 npm run slides:render -- markdowns/<topic>/<topic>.md shorts   # 세로형만
 npm run slides:render -- markdowns/<topic>/<topic>.md both     # 둘 다
+
+# PDF 내보내기
+npm run slides:pdf -- markdowns/<topic>/<topic>.md
 ```
 
-출력 경로: `out/<name>/<name>-slides.mp4`, `out/<name>/<name>-shorts.mp4`
+출력 경로: `out/<name>/<name>-slides.mp4`, `out/<name>/<name>-shorts.mp4`, `out/<name>/<name>.pdf`
 
 ## 마크다운 포맷 요약
 
@@ -110,6 +118,10 @@ theme: dark
 |---------------------------|--------|------|------|--------|
 | O | - | - | - | `abstract-scene` |
 | `<<` / `==` / `>>` 블록 | optional | O | - | `evolution-flow` |
+| `$` 숫자 라인 | - | - | - | `stat` |
+| `""` 인용 라인 | - | - | - | `quote` |
+| `\|\|` 컬럼 라인 | - | O | - | `compare` |
+| `1.` 번호 리스트 | - | - | - | `steps` |
 | - | O | O | - | `split` |
 | - | O | - | - | `title-image` |
 | - | - | O | - | `title-bullets` |
@@ -123,4 +135,5 @@ theme: dark
 - "보여줘", "확인", "발표용" → `slides:present`
 - "타임라인 확인", "Remotion Studio" → `slides:preview`
 - "영상 뽑아", "렌더해" → `slides:render`
+- "PDF", "인쇄", "공유용" → `slides:pdf`
 - 쇼츠를 따로 요청하지 않았으면 쇼츠 렌더를 하지 않는다

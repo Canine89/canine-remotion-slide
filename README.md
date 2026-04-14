@@ -77,9 +77,12 @@ npm run slides:preview -- markdowns/my-topic/my-topic.md
 npm run slides:render -- markdowns/my-topic/my-topic.md slides   # 가로형
 npm run slides:render -- markdowns/my-topic/my-topic.md shorts   # 세로형
 npm run slides:render -- markdowns/my-topic/my-topic.md both     # 둘 다
+
+# PDF 내보내기
+npm run slides:pdf -- markdowns/my-topic/my-topic.md
 ```
 
-출력 경로: `out/<name>/<name>-slides.mp4`, `out/<name>/<name>-shorts.mp4`
+출력 경로: `out/<name>/<name>-slides.mp4`, `out/<name>/<name>-shorts.mp4`, `out/<name>/<name>.pdf`
 
 ## 슬라이드 타입
 
@@ -93,6 +96,58 @@ npm run slides:render -- markdowns/my-topic/my-topic.md both     # 둘 다
 | `> 태그` | `title-tags` | 제목 + 키워드 묶음 |
 | 이미지 + 불릿 | `split` | 좌우 분할 |
 | `<<` / `==` / `>>` | `evolution-flow` | before/after 비교 |
+| `$ 숫자` | `stat` | 숫자/KPI 강조 (bar/ring 시각화) |
+| `"" 인용문` | `quote` | 인용구, 핵심 메시지 강조 |
+| `1.` 번호 리스트 | `steps` | 순차 프로세스/단계 |
+| `\|\|` 컬럼 | `compare` | 다항목 비교 (2~4개) |
+
+### stat 예시
+
+```markdown
+# [성과] 서비스 성장 지표
+
+$ 120만 [bar:85]
+월간 활성 사용자
+
+$ 40% [ring:40]
+운영 비용 절감
+```
+
+### quote 예시
+
+```markdown
+# [인사이트] 핵심 메시지
+
+"" 좋은 디자인은 가능한 적게 디자인하는 것이다
+— Dieter Rams
+```
+
+### steps 예시
+
+```markdown
+# [프로세스] 배포 파이프라인
+
+1. 코드 커밋
+2. CI 테스트 실행
+3. 스테이징 배포
+4. 프로덕션 릴리즈
+```
+
+### compare 예시
+
+```markdown
+# [비교] 프레임워크 선택
+
+|| React
+- 생태계가 크다
+- 자유도가 높다
+
+|| Vue
+- 학습 곡선이 낮다
+
+|| Svelte
+- 번들 크기가 작다
+```
 
 ### evolution-flow 예시
 
