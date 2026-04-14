@@ -43,6 +43,7 @@ const run = async () => {
   }
 
   if (action === "present") {
+    await killPortProcess(4000);
     await spawnAndWait("npx", ["vite", "--config", "src/presenter/vite.config.ts"], sourcePath);
     return;
   }
@@ -120,9 +121,22 @@ const warnIfDesignThemeNeedsGeneration = async (sourcePath) => {
   }
 };
 
+const killPortProcess = (port) =>
+  new Promise((resolve) => {
+    const isWin = process.platform === "win32";
+    const script = isWin
+      ? `for /f "tokens=5" %a in ('netstat -ano ^| findstr :${port} ^| findstr LISTENING') do taskkill /PID %a /F`
+      : `lsof -ti :${port} | xargs kill 2>/dev/null`;
+
+    const child = spawn(script, { shell: true, stdio: "ignore" });
+    child.on("exit", () => resolve());
+    child.on("error", () => resolve());
+  });
+
 const spawnAndWait = (command, commandArgs, sourcePath) =>
   new Promise((resolve, reject) => {
-    const child = spawn(command, commandArgs, {
+    const fullCommand = [command, ...commandArgs].join(" ");
+    const child = spawn(fullCommand, {
       cwd: repoRoot,
       stdio: "inherit",
       shell: true,
