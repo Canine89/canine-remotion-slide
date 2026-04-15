@@ -107,7 +107,7 @@ const reveal = (frame: number, start: number, duration: number, from = 26) => ({
 });
 
 export const AbstractSceneSlide: React.FC<SceneProps> = (props) => {
-  const { badge, badgeBg, badgeText, title, direction, prompts, scenes = [], theme, layout } = props;
+  const { badge, badgeBg, badgeText, title, direction, prompts, scenes = [], theme, layout, editable, onFieldEdit } = props;
   const frame = useCurrentFrame();
 
   const CustomScene = findSceneComponent(direction);
@@ -145,8 +145,8 @@ export const AbstractSceneSlide: React.FC<SceneProps> = (props) => {
           zIndex: 1,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} fontSize={isVertical ? 78 : 108} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} fontSize={isVertical ? 78 : 108} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
 
         {variant === 0 ? (
           <SpotlightLayout frame={frame} scenes={sceneList} palette={palette} motif={motif} isVertical={isVertical} />

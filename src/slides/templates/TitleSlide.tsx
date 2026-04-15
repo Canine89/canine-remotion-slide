@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from "remotion";
 import { ThemeColors } from "../themes";
 import { Badge } from "../components/Badge";
 import { SlideTitle } from "../components/SlideTitle";
+import { InlineEditable } from "../components/InlineEditable";
 
 interface Props {
   badge: string;
@@ -11,6 +12,8 @@ interface Props {
   title: string;
   subtitle?: string;
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const TitleSlide: React.FC<Props> = ({
@@ -20,6 +23,8 @@ export const TitleSlide: React.FC<Props> = ({
   title,
   subtitle,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -47,26 +52,51 @@ export const TitleSlide: React.FC<Props> = ({
           maxWidth: 1500,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
         {subtitle && (
-          <div
-            style={{
-              opacity: subtitleOpacity,
-              color: theme.text,
-              fontSize: 55,
-              fontFamily: theme.fontBody,
-              fontWeight: theme.fontWeightBody,
-              lineHeight: theme.bodyLineHeight ?? 1.5,
-              letterSpacing: theme.bodyLetterSpacing ?? "0px",
-              wordBreak: "keep-all",
-              textAlign: "center",
-              whiteSpace: "pre-line",
-              marginTop: 8,
-            }}
-          >
-            {subtitle}
-          </div>
+          editable ? (
+            <InlineEditable
+              value={subtitle}
+              onChange={(value) => onFieldEdit?.("subtitle", value)}
+              data-pptx="subtitle"
+              multiline
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                wordBreak: "keep-all",
+                textAlign: "center",
+                whiteSpace: "pre-line",
+                marginTop: 8,
+                outline: "none",
+                cursor: "text",
+              }}
+            />
+          ) : (
+            <div
+              data-pptx="subtitle"
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                wordBreak: "keep-all",
+                textAlign: "center",
+                whiteSpace: "pre-line",
+                marginTop: 8,
+              }}
+            >
+              {subtitle}
+            </div>
+          )
         )}
       </div>
     </AbsoluteFill>

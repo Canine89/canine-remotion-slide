@@ -13,7 +13,10 @@ const rewriteMarkdownAssetPaths = (raw: string, markdownPath: string) => {
   const topicRel = path.relative(repoRoot, path.dirname(markdownPath));
   return raw.replace(
     /!\[([^\]]*)\]\(([^/][^)]+)\)/g,
-    (_, alt, src) => `![${alt}](${topicRel}/${src})`
+    (_, alt, src) => {
+      if (src.startsWith(topicRel + "/")) return `![${alt}](${src})`;
+      return `![${alt}](${topicRel}/${src})`;
+    }
   );
 };
 

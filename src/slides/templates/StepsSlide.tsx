@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from "remotion";
 import { ThemeColors } from "../themes";
 import { Badge } from "../components/Badge";
 import { SlideTitle } from "../components/SlideTitle";
+import { InlineEditable } from "../components/InlineEditable";
 
 const isLightColor = (hex: string): boolean => {
   const c = hex.replace("#", "");
@@ -20,10 +21,11 @@ interface Props {
   title: string;
   steps: string[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 const CIRCLE_SIZE = 52;
-const ROW_HEIGHT = 80;
 const COL_GAP = 60;
 const LINE_LENGTH = 50;
 
@@ -34,6 +36,8 @@ export const StepsSlide: React.FC<Props> = ({
   title,
   steps,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
   const light = isLightColor(theme.bg);
@@ -64,8 +68,8 @@ export const StepsSlide: React.FC<Props> = ({
           width: "100%",
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
 
         <div
           style={{
@@ -91,6 +95,8 @@ export const StepsSlide: React.FC<Props> = ({
                 lineStroke={lineStroke}
                 lineBase={lineBase}
                 dashOffset={dashOffset}
+                editable={editable}
+                onStepChange={(val) => onFieldEdit?.("steps", val, i)}
               />
             ))}
           </div>
@@ -112,6 +118,8 @@ export const StepsSlide: React.FC<Props> = ({
                   lineStroke={lineStroke}
                   lineBase={lineBase}
                   dashOffset={dashOffset}
+                  editable={editable}
+                  onStepChange={(val) => onFieldEdit?.("steps", val, half + i)}
                 />
               ))}
             </div>
@@ -134,7 +142,11 @@ const StepRow: React.FC<{
   lineStroke: string;
   lineBase: string;
   dashOffset: number;
-}> = ({ index, step, isLast, showLine, showTopLine, frame, theme, light, lineStroke, lineBase, dashOffset }) => {
+  editable?: boolean;
+  onStepChange?: (value: string) => void;
+}> = ({ index, step, isLast, showLine, showTopLine, frame, theme, light, lineStroke, lineBase, dashOffset, editable, onStepChange }) => {
+  const textRef = useRef<HTMLDivElement>(null);
+  const [textHeight, setTextHeight] = useState(CIRCLE_SIZE);
   const delay = 26 + index * 6;
   const opacity = interpolate(frame, [delay, delay + 10], [0, 1], {
     extrapolateLeft: "clamp",
@@ -158,6 +170,22 @@ const StepRow: React.FC<{
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
+  const rowHeight = Math.max(CIRCLE_SIZE, textHeight);
+  const connectorHeight = Math.max(LINE_LENGTH, rowHeight - CIRCLE_SIZE + LINE_LENGTH);
+
+  useLayoutEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setTextHeight(el.getBoundingClientRect().height);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [step]);
 
   return (
     <div
@@ -196,11 +224,12 @@ const StepRow: React.FC<{
 
       {/* 번호 + 텍스트 */}
       <div
+        data-pptx="step-item"
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           gap: 20,
-          height: CIRCLE_SIZE,
+          minHeight: rowHeight,
         }}
       >
         <div
@@ -217,22 +246,47 @@ const StepRow: React.FC<{
             fontWeight: theme.fontWeightHeading ?? 800,
             fontSize: 26,
             flexShrink: 0,
+            marginTop: Math.max(0, (rowHeight - CIRCLE_SIZE) / 2),
           }}
         >
           {index + 1}
         </div>
-        <div
-          style={{
-            color: theme.text,
-            fontFamily: theme.fontBody,
-            fontWeight: theme.fontWeightBody ?? 500,
-            fontSize: 40,
-            lineHeight: 1.3,
-            wordBreak: "keep-all",
-          }}
-        >
-          {step}
-        </div>
+        {editable ? (
+          <div ref={textRef} style={{ flex: 1 }}>
+            <InlineEditable
+              value={step}
+              onChange={onStepChange}
+              multiline
+              style={{
+                color: theme.text,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody ?? 500,
+                fontSize: 40,
+                lineHeight: 1.3,
+                wordBreak: "keep-all",
+                whiteSpace: "pre-wrap",
+                outline: "none",
+                cursor: "text",
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            ref={textRef}
+            style={{
+              flex: 1,
+              color: theme.text,
+              fontFamily: theme.fontBody,
+              fontWeight: theme.fontWeightBody ?? 500,
+              fontSize: 40,
+              lineHeight: 1.3,
+              wordBreak: "keep-all",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {step}
+          </div>
+        )}
       </div>
 
       {/* 연결선 (dashed 애니메이션) */}
@@ -242,13 +296,13 @@ const StepRow: React.FC<{
             width: CIRCLE_SIZE,
             display: "flex",
             justifyContent: "center",
-            height: LINE_LENGTH,
+            height: connectorHeight,
           }}
         >
           <svg
-            viewBox={`0 0 6 ${LINE_LENGTH}`}
+            viewBox={`0 0 6 ${connectorHeight}`}
             width="6"
-            height={LINE_LENGTH}
+            height={connectorHeight}
             style={{
               transform: `scaleY(${lineScale})`,
               transformOrigin: "top center",
@@ -256,13 +310,13 @@ const StepRow: React.FC<{
             }}
           >
             <line
-              x1="3" y1="0" x2="3" y2={LINE_LENGTH}
+              x1="3" y1="0" x2="3" y2={connectorHeight}
               stroke={lineBase}
               strokeWidth="3"
               strokeLinecap="round"
             />
             <line
-              x1="3" y1="0" x2="3" y2={LINE_LENGTH}
+              x1="3" y1="0" x2="3" y2={connectorHeight}
               stroke={lineStroke}
               strokeWidth="3"
               strokeLinecap="round"

@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "slides": [
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {
+        "image": {
+          "x": 0.01735687255859375,
+          "y": 23.5850830078125
+        }
+      },
+      "sizes": {
+        "image": {
+          "w": 889,
+          "h": 418
+        }
+      },
+      "layerOrder": [
+        "image",
+        "badge",
+        "title"
+      ]
+    },
+    {
+      "offsets": {
+        "bullet-item-1": {
+          "x": 0,
+          "y": -0.9921875
+        }
+      },
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {
+        "bullet-item-0": {
+          "x": 0,
+          "y": -5.5859375
+        },
+        "title": {
+          "x": 0,
+          "y": 100.5234375
+        },
+        "badge": {
+          "x": -640.0347290039062,
+          "y": 76.07077026367188
+        },
+        "image": {
+          "x": 60,
+          "y": 0.0086822509765625
+        }
+      },
+      "sizes": {
+        "image": {
+          "w": 734,
+          "h": 414
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {
+        "title": {
+          "x": 0,
+          "y": 80.8544921875
+        },
+        "badge": {
+          "x": 0.009765625,
+          "y": 72.802734375
+        }
+      },
+      "sizes": {
+        "image": {
+          "w": 558,
+          "h": 323
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {
+        "bullet-item-0": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {
+        "image": {
+          "w": 1038,
+          "h": 584
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {
+        "image": {
+          "w": 836,
+          "h": 401
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    }
+  ]
+}

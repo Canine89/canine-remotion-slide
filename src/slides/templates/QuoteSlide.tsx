@@ -11,6 +11,8 @@ interface Props {
   quote: string;
   attribution?: string;
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const QuoteSlide: React.FC<Props> = ({
@@ -21,6 +23,8 @@ export const QuoteSlide: React.FC<Props> = ({
   quote,
   attribution,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -67,7 +71,7 @@ export const QuoteSlide: React.FC<Props> = ({
           position: "relative",
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
 
         {/* 큰따옴표 장식 */}
         <div
@@ -87,6 +91,22 @@ export const QuoteSlide: React.FC<Props> = ({
         </div>
 
         <div
+          data-pptx="quote"
+          contentEditable={editable}
+          suppressContentEditableWarning
+          onInput={editable ? (e) => {
+            if ((e.nativeEvent as InputEvent).isComposing) return;
+            const val = e.currentTarget.textContent ?? "";
+            if (val !== quote) onFieldEdit?.("quote", val);
+          } : undefined}
+          onCompositionEnd={editable ? (e) => {
+            const val = e.currentTarget.textContent ?? "";
+            if (val !== quote) onFieldEdit?.("quote", val);
+          } : undefined}
+          onBlur={(e) => {
+            const val = e.currentTarget.textContent ?? "";
+            if (val !== quote) onFieldEdit?.("quote", val);
+          }}
           style={{
             opacity: quoteOpacity,
             transform: `translateY(${quoteTranslateY}px)`,
@@ -100,6 +120,8 @@ export const QuoteSlide: React.FC<Props> = ({
             wordBreak: "keep-all",
             whiteSpace: "pre-line",
             marginTop: 24,
+            outline: "none",
+            cursor: editable ? "text" : undefined,
           }}
         >
           {quote}
@@ -107,6 +129,22 @@ export const QuoteSlide: React.FC<Props> = ({
 
         {attribution && (
           <div
+            data-pptx="attribution"
+            contentEditable={editable}
+            suppressContentEditableWarning
+            onInput={editable ? (e) => {
+              if ((e.nativeEvent as InputEvent).isComposing) return;
+              const val = (e.currentTarget.textContent ?? "").replace(/^—\s*/, "");
+              if (val !== attribution) onFieldEdit?.("attribution", val);
+            } : undefined}
+            onCompositionEnd={editable ? (e) => {
+              const val = (e.currentTarget.textContent ?? "").replace(/^—\s*/, "");
+              if (val !== attribution) onFieldEdit?.("attribution", val);
+            } : undefined}
+            onBlur={(e) => {
+              const val = (e.currentTarget.textContent ?? "").replace(/^—\s*/, "");
+              if (val !== attribution) onFieldEdit?.("attribution", val);
+            }}
             style={{
               opacity: attrOpacity,
               color: theme.text,
@@ -115,6 +153,8 @@ export const QuoteSlide: React.FC<Props> = ({
               fontSize: 40,
               lineHeight: 1.4,
               marginTop: 20,
+              outline: "none",
+              cursor: editable ? "text" : undefined,
             }}
           >
             — {attribution}

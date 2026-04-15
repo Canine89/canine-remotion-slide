@@ -1,6 +1,7 @@
 import React from "react";
 import { useCurrentFrame, interpolate, Easing } from "remotion";
 import { ThemeColors } from "../themes";
+import { InlineEditable } from "./InlineEditable";
 
 interface Props {
   text: string;
@@ -12,6 +13,8 @@ interface Props {
   letterSpacing?: string;
   fontWeight?: number;
   theme?: ThemeColors;
+  editable?: boolean;
+  onTextChange?: (value: string) => void;
 }
 
 export const Badge: React.FC<Props> = ({
@@ -24,6 +27,8 @@ export const Badge: React.FC<Props> = ({
   letterSpacing = "0.5px",
   fontWeight = 800,
   theme,
+  editable,
+  onTextChange,
 }) => {
   const frame = useCurrentFrame();
 
@@ -62,7 +67,19 @@ export const Badge: React.FC<Props> = ({
         letterSpacing: theme?.badgeLetterSpacing ?? letterSpacing,
       }}
     >
-      {text}
+      {editable ? (
+        <InlineEditable
+          as="span"
+          value={text}
+          onChange={onTextChange}
+          style={{
+            outline: "none",
+            cursor: "text",
+          }}
+        />
+      ) : (
+        <span>{text}</span>
+      )}
     </div>
   );
 };

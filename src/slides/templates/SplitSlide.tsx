@@ -21,6 +21,8 @@ interface Props {
   image?: string;
   bullets: string[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const SplitSlide: React.FC<Props> = ({
@@ -31,6 +33,8 @@ export const SplitSlide: React.FC<Props> = ({
   image,
   bullets,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -64,8 +68,8 @@ export const SplitSlide: React.FC<Props> = ({
           marginBottom: 40,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        {title && <SlideTitle text={title} color={theme.title} theme={theme} />}
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        {title && <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />}
       </div>
 
       {/* 2단 분할 */}
@@ -79,6 +83,7 @@ export const SplitSlide: React.FC<Props> = ({
       >
         {/* 좌측: 이미지 또는 플레이스홀더 */}
         <div
+          data-pptx="image"
           style={{
             flex: 1,
             opacity: imageOpacity,
@@ -118,7 +123,7 @@ export const SplitSlide: React.FC<Props> = ({
             justifyContent: "center",
           }}
         >
-          <BulletList items={bullets} color={theme.text} fontSize={55} startFrame={25} theme={theme} />
+          <BulletList items={bullets} color={theme.text} fontSize={55} startFrame={25} theme={theme} editable={editable} onItemChange={(i, v) => onFieldEdit?.("bullets", v, i)} onItemAdd={(i) => { /* handled via onFieldEdit */ }} onItemDelete={(i) => { /* handled via onFieldEdit */ }} />
         </div>
       </div>
     </AbsoluteFill>

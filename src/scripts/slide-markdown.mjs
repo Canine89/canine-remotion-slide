@@ -12,6 +12,7 @@ const usage = `
 Usage:
   npm run slides:use -- /absolute/or/relative/file.md
   npm run slides:present -- /absolute/or/relative/file.md
+  npm run slides:edit -- /absolute/or/relative/file.md
   npm run slides:preview -- /absolute/or/relative/file.md
   npm run slides:render -- /absolute/or/relative/file.md [slides|shorts|both] [output-prefix]
   npm run slides:pdf -- /absolute/or/relative/file.md [output.pdf]
@@ -46,6 +47,12 @@ const run = async () => {
   if (action === "present") {
     await killPortProcess(4000);
     await spawnAndWait("npx", ["vite", "--config", "src/presenter/vite.config.ts"], sourcePath);
+    return;
+  }
+
+  if (action === "edit") {
+    await killPortProcess(4000);
+    await spawnAndWait("npx", ["vite", "--config", "src/editor/vite.config.ts"], sourcePath);
     return;
   }
 

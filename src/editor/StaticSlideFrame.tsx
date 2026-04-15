@@ -1,0 +1,134 @@
+import React, { useEffect, useRef } from "react";
+import { Internals } from "remotion";
+import { SlideData } from "../slides/types";
+import { SlideRenderer } from "../slides/SlideRenderer";
+
+/**
+ * Remotion Player 없이 슬라이드를 정적 렌더링한다.
+ * useCurrentFrame()이 settledFrame 값을 반환하도록 최소 컨텍스트를 제공한다.
+ *
+ * 원리:
+ * - CanUseRemotionHooksProvider로 useCurrentFrame() 활성화
+ * - window.remotion_initialFrame을 설정하면 useVideo()가 null일 때 이 값을 반환
+ * - CompositionManager의 기본값(compositions: [])으로 useVideo()는 null 반환
+ */
+
+interface Props {
+  slide: SlideData;
+  frame: number;
+  width?: number;
+  height?: number;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
+  offsets?: Record<string, { x: number; y: number }>;
+  sizes?: Record<string, { w: number; h: number }>;
+  layerOrder?: string[];
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+function getElementKey(el: HTMLElement): string {
+  const pptx = el.getAttribute("data-pptx") ?? "unknown";
+  const parent = el.parentElement;
+  if (parent) {
+    const siblings = Array.from(parent.querySelectorAll(`[data-pptx="${pptx}"]`));
+    if (siblings.length > 1) {
+      return `${pptx}-${siblings.indexOf(el)}`;
+    }
+  }
+  return pptx;
+}
+
+export const StaticSlideFrame: React.FC<Props> = ({
+  slide,
+  frame,
+  width = 1920,
+  height = 1080,
+  editable,
+  onFieldEdit,
+  offsets,
+  sizes,
+  layerOrder,
+  style,
+  className,
+}) => {
+  const prevFrame = useRef<number | undefined>(undefined);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    (window as any).remotion_initialFrame = frame;
+    return () => {
+      if (prevFrame.current !== undefined) {
+        (window as any).remotion_initialFrame = prevFrame.current;
+      }
+    };
+  }, [frame]);
+
+  // 즉시 설정 (렌더링 전에 값이 필요)
+  prevFrame.current = (window as any).remotion_initialFrame;
+  (window as any).remotion_initialFrame = frame;
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    for (const el of root.querySelectorAll("[data-pptx]")) {
+      const node = el as HTMLElement;
+      const key = getElementKey(node);
+      const offset = offsets?.[key];
+      node.style.transform =
+        offset && (offset.x || offset.y) ? `translate(${offset.x}px, ${offset.y}px)` : "";
+
+      if (layerOrder && layerOrder.length > 0) {
+        const zIndex = layerOrder.indexOf(key);
+        node.style.zIndex = zIndex >= 0 ? String(zIndex + 1) : "";
+        if (zIndex >= 0) {
+          node.style.position = "relative";
+        }
+      } else {
+        node.style.zIndex = "";
+      }
+    }
+
+    for (const el of root.querySelectorAll("[data-pptx='image'] img, [data-pptx='image'] video")) {
+      const media = el as HTMLElement;
+      const parent = media.closest("[data-pptx='image']") as HTMLElement | null;
+      if (!parent) continue;
+      const key = getElementKey(parent);
+      const size = sizes?.[key];
+      if (size) {
+        media.style.width = `${size.w}px`;
+        media.style.height = `${size.h}px`;
+        media.style.maxWidth = "none";
+        media.style.maxHeight = "none";
+      } else {
+        media.style.width = "";
+        media.style.height = "";
+        media.style.maxWidth = "";
+        media.style.maxHeight = "";
+      }
+    }
+  });
+
+  return (
+    <Internals.CanUseRemotionHooksProvider>
+      <div
+        ref={rootRef}
+        className={className}
+        style={{
+          width,
+          height,
+          position: "relative",
+          overflow: "hidden",
+          ...style,
+        }}
+      >
+        <SlideRenderer
+          slide={slide}
+          editable={editable}
+          onFieldEdit={onFieldEdit}
+        />
+      </div>
+    </Internals.CanUseRemotionHooksProvider>
+  );
+};

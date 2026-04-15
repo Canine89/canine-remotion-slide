@@ -11,4 +11,6 @@ export interface SceneProps {
   scenes: AbstractSceneItem[];
   theme: ThemeColors;
   layout?: "horizontal" | "vertical";
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }

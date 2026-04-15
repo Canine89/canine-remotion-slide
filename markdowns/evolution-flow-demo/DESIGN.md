@@ -1,304 +1,363 @@
-# Design System Inspired by Clay
+# Design System Inspired by Nike
 
 ## 1. Visual Theme & Atmosphere
 
-Clay's website is a warm, playful celebration of color that treats B2B data enrichment like a craft rather than an enterprise chore. The design language is built on a foundation of warm cream backgrounds (`#faf9f7`) and oat-toned borders (`#dad4c8`, `#eee9df`) that give every surface the tactile quality of handmade paper. Against this artisanal canvas, a vivid swatch palette explodes with personality — Matcha green, Slushie cyan, Lemon gold, Ube purple, Pomegranate pink, Blueberry navy, and Dragonfruit magenta — each named like flavors at a juice bar, not colors in an enterprise UI kit.
+Nike.com is a kinetic retail cathedral — a site that channels the explosive energy of sport into a digital shopping experience. The design operates on a principle of radical simplicity: strip everything back to black, white, and grey so that athletic photography and product color can dominate without competition. The result feels less like a website and more like a sports editorial laid out with the precision of a luxury magazine. Every pixel of real estate is either selling product or driving toward product.
 
-The typography is anchored by Roobert, a geometric sans-serif with character, loaded with an extensive set of OpenType stylistic sets (`"ss01"`, `"ss03"`, `"ss10"`, `"ss11"`, `"ss12"`) that give the text a distinctive, slightly quirky personality. At display scale (80px, weight 600), Roobert uses aggressive negative letter-spacing (-3.2px) that compresses headlines into punchy, billboard-like statements. Space Mono serves as the monospace companion for code and technical labels, completing the craft-meets-tech duality.
+The "Podium CDS" (Nike's internal Core Design System) establishes an aggressively monochromatic foundation. The UI disappears into black (`#111111`) text and white surfaces, allowing hero photography — sweating athletes, mid-air shoes, stadium energy — to carry the emotional weight. When color does appear in the UI, it's almost exclusively functional: red for errors, blue for links, green for success. The product itself is the color story. This restraint creates a visual paradox: the most colorful pages on the internet feel the most minimal, because all vibrancy comes from merchandise rather than interface.
 
-What makes Clay truly distinctive is its hover micro-animations: buttons on hover rotate slightly (`rotateZ(-8deg)`), translate upward (`translateY(-80%)`), change background to a contrasting swatch color, and cast a hard offset shadow (`rgb(0,0,0) -7px 7px`). This playful hover behavior — where a button literally tilts and jumps on interaction — creates a sense of physical delight that's rare in B2B software. Combined with generously rounded containers (24px–40px radius), dashed borders alongside solid ones, and a multi-layer shadow system that includes inset highlights, Clay feels like a design system that was made by people who genuinely enjoy making things.
+The typography system is the other half of Nike's visual identity. Massive uppercase headlines in Nike Futura ND — a custom condensed Futura variant with impossibly tight line-height (0.90) — punch through hero imagery like a typographic shockwave. Below the headlines, the workhorse Helvetica Now family handles everything from navigation to product descriptions with Swiss-precision clarity. This split between expressive display type and functional body type mirrors Nike's brand duality: inspiration meets execution.
 
 **Key Characteristics:**
-- Warm cream canvas (`#faf9f7`) with oat-toned borders (`#dad4c8`) — artisanal, not clinical
-- Named swatch palette: Matcha, Slushie, Lemon, Ube, Pomegranate, Blueberry, Dragonfruit
-- Roobert font with 5 OpenType stylistic sets — quirky geometric character
-- Playful hover animations: rotateZ(-8deg) + translateY(-80%) + hard offset shadow
-- Space Mono for code and technical labels
-- Generous border radius: 24px cards, 40px sections, 1584px pills
-- Mixed border styles: solid + dashed in the same interface
-- Multi-layer shadow with inset highlight: `0px 1px 1px` + `-1px inset` + `-0.5px`
+- Monochromatic UI (black/white/grey) that lets product photography be the only color source
+- Massive uppercase display typography (96px, line-height 0.90) that punches through hero images
+- Full-bleed photography with no border radius — imagery fills every available edge
+- Pill-shaped buttons (30px radius) as the primary interactive element
+- 8px spacing grid with athletic discipline — every measurement snaps to the system
+- Category-driven shopping architecture with large navigational image cards
+- Shadow-free, border-minimal elevation model — surface differentiation through grey shifts only
 
 ## 2. Color Palette & Roles
 
 ### Primary
-- **Clay Black** (`#000000`): Text, headings, pricing card text, `--_theme--pricing-cards---text`
-- **Pure White** (`#ffffff`): Card backgrounds, button backgrounds, inverse text
-- **Warm Cream** (`#faf9f7`): Page background — the warm, paper-like canvas
 
-### Swatch Palette — Named Colors
+- **Nike Black** (`#111111`): The foundation — primary text, button backgrounds, nav text, hero overlays. Deliberately not pure black (#000000), creating a fractionally softer reading experience
+- **Nike White** (`#FFFFFF`): Primary page canvas, button text on dark, card surfaces, nav bar background
 
-**Matcha (Green)**
-- **Matcha 300** (`#84e7a5`): `--_swatches---color--matcha-300`, light green accent
-- **Matcha 600** (`#078a52`): `--_swatches---color--matcha-600`, mid green
-- **Matcha 800** (`#02492a`): `--_swatches---color--matcha-800`, deep green for dark sections
+### Surface & Background
 
-**Slushie (Cyan)**
-- **Slushie 500** (`#3bd3fd`): `--_swatches---color--slushie-500`, bright cyan accent
-- **Slushie 800** (`#0089ad`): `--_swatches---color--slushie-800`, deep teal
+- **Snow** (`#FAFAFA`): Lightest surface, near-white subtle differentiation (--podium-cds-color-grey-50)
+- **Light Gray** (`#F5F5F5`): Secondary background, search input fill, image placeholder, loading skeleton (--podium-cds-color-grey-100)
+- **Hover Gray** (`#E5E5E5`): Hover state background, disabled button fill (--podium-cds-color-grey-200)
+- **Dark Surface** (`#28282A`): Primary background on dark/inverted sections (--podium-cds-color-grey-800)
+- **Deep Charcoal** (`#1F1F21`): Inverse primary background, darkest non-black surface (--podium-cds-color-grey-900)
+- **Dark Hover** (`#39393B`): Hover state on dark backgrounds (--podium-cds-color-grey-700)
 
-**Lemon (Gold)**
-- **Lemon 400** (`#f8cc65`): `--_swatches---color--lemon-400`, warm pale gold
-- **Lemon 500** (`#fbbd41`): `--_swatches---color--lemon-500`, primary gold
-- **Lemon 700** (`#d08a11`): `--_swatches---color--lemon-700`, deep amber
-- **Lemon 800** (`#9d6a09`): `--_swatches---color--lemon-800`, dark amber
+### Neutrals & Text
 
-**Ube (Purple)**
-- **Ube 300** (`#c1b0ff`): `--_swatches---color--ube-300`, soft lavender
-- **Ube 800** (`#43089f`): `--_swatches---color--ube-800`, deep purple
-- **Ube 900** (`#32037d`): `--_swatches---color--ube-900`, darkest purple
+- **Primary Text** (`#111111`): Main body text, headings, nav links (--podium-cds-color-text-primary)
+- **Secondary Text** (`#707072`): Descriptive copy, metadata, timestamps, price labels (--podium-cds-color-text-secondary)
+- **Disabled Text** (`#9E9EA0`): Inactive elements, unavailable options (--podium-cds-color-text-disabled)
+- **Disabled Inverse** (`#4B4B4D`): Disabled text on dark backgrounds (--podium-cds-color-text-disabled-inverse)
+- **Border Primary** (`#707072`): Standard border color, matching secondary text
+- **Border Secondary** (`#CACACB`): Subtle borders, input borders, divider lines (--podium-cds-color-grey-300)
+- **Border Disabled** (`#CACACB`): Inactive border state
+- **Border Active** (`#111111`): Active/focused border, matching primary text
 
-**Pomegranate (Pink/Red)**
-- **Pomegranate 400** (`#fc7981`): `--_swatches---color--pomegranate-400`, warm coral-pink
+### Semantic & Accent
 
-**Blueberry (Navy Blue)**
-- **Blueberry 800** (`#01418d`): `--_swatches---color--blueberry-800`, deep navy
+- **Nike Red** (`#D30005`): Critical errors, sale badges, urgent notifications (--podium-cds-color-red-600)
+- **Bright Red** (`#EE0005`): Red-500, slightly lighter red for emphasis
+- **Nike Orange Badge** (`#D33918`): Badge text, promotional callouts (--podium-cds-color-text-badge)
+- **Orange Flash** (`#FF5000`): Expressive orange accent (--podium-cds-color-orange-400)
+- **Success Green** (`#007D48`): Confirmation, availability, positive states (--podium-cds-color-green-600)
+- **Success Inverse** (`#1EAA52`): Success on dark backgrounds (--podium-cds-color-green-500)
+- **Link Blue** (`#1151FF`): Text links, informational highlights (--podium-cds-color-blue-500)
+- **Info Inverse** (`#1190FF`): Links on dark backgrounds (--podium-cds-color-blue-400)
+- **Warning Yellow** (`#FEDF35`): Warning backgrounds, attention banners (--podium-cds-color-yellow-200)
+- **Focus Ring** (`rgba(39, 93, 197, 1)`): Keyboard focus indicator ring
 
-### Neutral Scale (Warm)
-- **Warm Silver** (`#9f9b93`): Secondary/muted text, footer links
-- **Warm Charcoal** (`#55534e`): Tertiary text, dark muted links
-- **Dark Charcoal** (`#333333`): Link text on light backgrounds
+### Extended Color Spectrum (Podium CDS)
 
-### Surface & Border
-- **Oat Border** (`#dad4c8`): Primary border — warm, cream-toned structural lines
-- **Oat Light** (`#eee9df`): Secondary lighter border
-- **Cool Border** (`#e6e8ec`): Cool-toned border for contrast sections
-- **Dark Border** (`#525a69`): Border on dark sections
-- **Light Frost** (`#eff1f3`): Subtle button background (at 0% opacity on hover)
+Each color ramp runs 50–900 for expressive use in campaigns and product pages:
 
-### Badges
-- **Badge Blue Bg** (`#f0f8ff`): Blue-tinted badge surface
-- **Badge Blue Text** (`#3859f9`): Vivid blue badge text
-- **Focus Ring** (`rgb(20, 110, 245) solid 2px`): Accessibility focus indicator
+- **Red**: `#FFE5E5` → `#EE0005` → `#530300`
+- **Orange**: `#FFE2D6` → `#FF5000` → `#3E1009`
+- **Yellow**: `#FEF087` → `#FCA600` → `#99470A`
+- **Green**: `#DFFFB9` → `#1EAA52` → `#003C2A`
+- **Teal**: `#D4FFFB` → `#008E98` → `#043441`
+- **Blue**: `#D6EEFF` → `#1151FF` → `#020664`
+- **Purple**: `#E4E1FC` → `#6E0FF6` → `#1C0060`
+- **Pink**: `#FFE1F3` → `#ED1AA0` → `#4C012D`
 
-### Shadows
-- **Clay Shadow** (`rgba(0,0,0,0.1) 0px 1px 1px, rgba(0,0,0,0.04) 0px -1px 1px inset, rgba(0,0,0,0.05) 0px -0.5px 1px`): Multi-layer with inset highlight — the signature
-- **Hard Offset** (`rgb(0,0,0) -7px 7px`): Hover state — playful hard shadow
+### Gradient System
+
+Nike avoids UI gradients. When gradients appear, they are photographic — applied to product hero backgrounds (e.g., a red shoe on a red-to-deeper-red gradient). The design system itself is flat-color only.
 
 ## 3. Typography Rules
 
-### Font Families
-- **Primary**: `Roobert`, fallback: `Arial`
-- **Monospace**: `Space Mono`
-- **OpenType Features**: `"ss01"`, `"ss03"`, `"ss10"`, `"ss11"`, `"ss12"` on all Roobert text (display uses all 5; body/UI uses `"ss03"`, `"ss10"`, `"ss11"`, `"ss12"`)
+### Font Family
+
+**Display:** Nike Futura ND (custom condensed Futura variant exclusive to Nike)
+- Fallbacks: Helvetica Now Text Medium, Helvetica, Arial
+- Used exclusively for large uppercase display headlines
+- Characteristically tight line-height (0.90) and uppercase transform
+
+**Heading:** Helvetica Now Display Medium
+- Fallbacks: Helvetica, Arial
+- Used for section headings and product titles at 24–32px
+
+**Body Medium:** Helvetica Now Text Medium (weight 500)
+- Fallbacks: Helvetica, Arial
+- Used for links, buttons, captions, emphasized body text
+
+**Body:** Helvetica Now Text (weight 400)
+- Fallbacks: Helvetica, Arial
+- Used for standard body copy, descriptions, metadata
+
+**Arabic:** Neue Frutiger Arabic — locale-specific alternative
 
 ### Hierarchy
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-|------|------|------|--------|-------------|----------------|-------|
-| Display Hero | Roobert | 80px (5.00rem) | 600 | 1.00 (tight) | -3.2px | All 5 stylistic sets |
-| Display Secondary | Roobert | 60px (3.75rem) | 600 | 1.00 (tight) | -2.4px | All 5 stylistic sets |
-| Section Heading | Roobert | 44px (2.75rem) | 600 | 1.10 (tight) | -0.88px to -1.32px | All 5 stylistic sets |
-| Card Heading | Roobert | 32px (2.00rem) | 600 | 1.10 (tight) | -0.64px | All 5 stylistic sets |
-| Feature Title | Roobert | 20px (1.25rem) | 600 | 1.40 | -0.4px | All 5 stylistic sets |
-| Sub-heading | Roobert | 20px (1.25rem) | 500 | 1.50 | -0.16px | 4 stylistic sets (no ss01) |
-| Body Large | Roobert | 20px (1.25rem) | 400 | 1.40 | normal | 4 stylistic sets |
-| Body | Roobert | 18px (1.13rem) | 400 | 1.60 (relaxed) | -0.36px | 4 stylistic sets |
-| Body Standard | Roobert | 16px (1.00rem) | 400 | 1.50 | normal | 4 stylistic sets |
-| Body Medium | Roobert | 16px (1.00rem) | 500 | 1.20–1.40 | -0.16px to -0.32px | 4–5 stylistic sets |
-| Button | Roobert | 16px (1.00rem) | 500 | 1.50 | -0.16px | 4 stylistic sets |
-| Button Large | Roobert | 24px (1.50rem) | 400 | 1.50 | normal | 4 stylistic sets |
-| Button Small | Roobert | 12.8px (0.80rem) | 500 | 1.50 | -0.128px | 4 stylistic sets |
-| Nav Link | Roobert | 15px (0.94rem) | 500 | 1.60 (relaxed) | normal | 4 stylistic sets |
-| Caption | Roobert | 14px (0.88rem) | 400 | 1.50–1.60 | -0.14px | 4 stylistic sets |
-| Small | Roobert | 12px (0.75rem) | 400 | 1.50 | normal | 4 stylistic sets |
-| Uppercase Label | Roobert | 12px (0.75rem) | 600 | 1.20 (tight) | 1.08px | `text-transform: uppercase`, 4 sets |
-| Badge | Roobert | 9.6px | 600 | — | — | Pill badges |
+| Role | Size | Weight | Line Height | Letter Spacing | Notes |
+|------|------|--------|-------------|----------------|-------|
+| Display | 96px | 500 | 0.90 | — | Nike Futura ND, uppercase, hero headlines |
+| Heading 1 | 32px | 500 | 1.20 | — | Helvetica Now Display Medium, section titles |
+| Heading 2 | 24px | 500 | 1.20 | — | Helvetica Now Display Medium, subsections |
+| Heading 3 | 16px | 500 | 1.50 | — | Helvetica Now Text Medium, card titles |
+| Body | 16px | 400 | 1.75 | — | Helvetica Now Text, product descriptions |
+| Body Medium | 16px | 500 | 1.75 | — | Helvetica Now Text Medium, emphasized text |
+| Link | 16px | 500 | 1.75 | — | Helvetica Now Text Medium, navigation links |
+| Link Small | 14px | 500 | 1.86 | — | Helvetica Now Text Medium, footer/utility links |
+| Button | 16px | 500 | 1.50 | — | Helvetica Now Text Medium, CTA text |
+| Button Small | 14px | 500 | 1.50 | — | Helvetica Now Text Medium, secondary buttons |
+| Caption | 14px | 500 | 1.50 | — | Helvetica Now Text Medium, price labels |
+| Small | 12px | 500 | 1.50 | — | Helvetica Now Text Medium, timestamps |
+| Tiny | 12px | 400 | 1.50 | — | Helvetica Now Text, legal text |
 
 ### Principles
-- **Five stylistic sets as identity**: The combination of `"ss01"`, `"ss03"`, `"ss10"`, `"ss11"`, `"ss12"` on Roobert creates a distinctive typographic personality. `ss01` is reserved for headings and emphasis — body text omits it, creating a subtle hierarchy through glyph variation.
-- **Aggressive display compression**: -3.2px at 80px, -2.4px at 60px — the most compressed display tracking alongside the most generous body spacing (1.60 line-height), creating dramatic contrast.
-- **Weight 600 for headings, 500 for UI, 400 for body**: Clean three-tier system where each weight has a strict role.
-- **Uppercase labels with positive tracking**: 12px uppercase at 1.08px letter-spacing creates the systematic wayfinding pattern.
+
+Nike's typography is a study in tension. The display layer — Nike Futura ND at 96px with a devastating 0.90 line-height — is engineered to feel like a stadium scoreboard: massive, condensed, uppercase, impossible to ignore. It transforms headlines into battle cries. Below the display layer, Helvetica Now provides a clinical counterpoint: Swiss-precision legibility with generous 1.75 line-height for comfortable product browsing. Weight 500 (Medium) dominates throughout the body text, giving Nike's prose a slight assertiveness without the heaviness of bold — every sentence reads like a confident recommendation, not a shout.
 
 ## 4. Component Stylings
 
 ### Buttons
 
-**Primary (Transparent with Hover Animation)**
-- Background: transparent (`rgba(239, 241, 243, 0)`)
-- Text: `#000000`
-- Padding: 6.4px 12.8px
-- Border: none (or `1px solid #717989` for outlined variant)
-- Hover: background shifts to swatch color (e.g., `#434346`), text to white, `rotateZ(-8deg)`, `translateY(-80%)`, hard shadow `rgb(0,0,0) -7px 7px`
-- Focus: `rgb(20, 110, 245) solid 2px` outline
+**Primary**
+- Background: Nike Black (`#111111`)
+- Text: White (`#FFFFFF`), 16px/500, Helvetica Now Text Medium
+- Border: none
+- Border radius: fully rounded pill (30px)
+- Padding: ~12px 24px
+- Hover: background shifts to Grey-500 (`#707072`), text hover color
+- Active: scale(0) ripple effect with opacity 0.5
+- Focus: 2px box-shadow ring in `rgba(39, 93, 197, 1)`
+- Transition: background 200ms ease
 
-**White Solid**
-- Background: `#ffffff`
-- Text: `#000000`
-- Padding: 6.4px
-- Hover: oat-200 swatch color, animated rotation + shadow
-- Use: Primary CTA on colored sections
+**Primary on Dark**
+- Background: White (`#FFFFFF`)
+- Text: Black (`#111111`)
+- Hover: background shifts to Grey-300 (`#CACACB`)
 
-**Ghost Outlined**
+**Secondary (Outlined)**
 - Background: transparent
-- Text: `#000000`
-- Padding: 8px
-- Border: `1px solid #717989`
-- Radius: 4px
-- Hover: dragonfruit swatch color, white text, animated rotation
+- Text: Nike Black (`#111111`)
+- Border: 1.5px solid `#CACACB` (grey-300)
+- Border radius: 30px
+- Hover: border darkens to `#707072`, background to grey-200
+
+**Disabled**
+- Background: Grey-200 (`#E5E5E5`)
+- Text: Grey-400 (`#9E9EA0`)
+- Cursor: not-allowed
+
+**Icon Button**
+- Background: Grey-100 (`#F5F5F5`)
+- Shape: 30px radius (or 50% for circular)
+- Padding: 6px
+- Hover: Grey-500 background
 
 ### Cards & Containers
-- Background: `#ffffff` on cream canvas
-- Border: `1px solid #dad4c8` (warm oat) or `1px dashed #dad4c8`
-- Radius: 12px (standard cards), 24px (feature cards/images), 40px (section containers/footer)
-- Shadow: `rgba(0,0,0,0.1) 0px 1px 1px, rgba(0,0,0,0.04) 0px -1px 1px inset, rgba(0,0,0,0.05) 0px -0.5px 1px`
-- Colorful section backgrounds using swatch palette (matcha, slushie, ube, lemon)
+
+- Background: White (`#FFFFFF`) — no visible card boundary in most cases
+- Border radius: 0px for product image cards (edge-to-edge imagery), 20px for interactive containers
+- Shadow: none — Nike uses no card shadows whatsoever
+- Hover: no lift effect on product cards; underline on text links within cards
+- Product cards: image on top (no radius), text metadata below with 12px gap
+- Category cards: full-bleed photography with text overlay on dark gradient
+- Transition: opacity 200ms ease for image swap on hover
 
 ### Inputs & Forms
-- Text: `#000000`
-- Border: `1px solid #717989`
-- Radius: 4px
-- Focus: `rgb(20, 110, 245) solid 2px` outline
+
+- Background: Grey-100 (`#F5F5F5`)
+- Border: 1px solid `#CACACB` when visible, or borderless on search
+- Border radius: 24px (search inputs), 8px (form inputs)
+- Font: Helvetica Now Text, 16px
+- Focus: border shifts to `#111111` (border-active), 2px focus ring in `rgba(39, 93, 197, 1)`
+- Error: border `#D30005` (critical)
+- Placeholder: Grey-500 (`#707072`)
+- Transition: border-color 200ms ease
 
 ### Navigation
-- Sticky top nav on cream background
-- Roobert 15px weight 500 for nav links
-- Clay logo left-aligned
-- CTA buttons right-aligned with pill radius
-- Border bottom: `1px solid #dad4c8`
-- Mobile: hamburger collapse at 767px
+
+- Background: White (`#FFFFFF`), sticky
+- Height: ~60px desktop
+- Left: Nike Swoosh logo (24x24px SVG)
+- Center: Category links (New & Featured, Men, Women, Kids, Sale) in 16px/500 Helvetica Now Text Medium
+- Right: Search (24px radius input), Favorites, Cart icons
+- Hover: text color shifts to Grey-500 (`#707072`)
+- Mobile: hamburger menu, full-screen overlay
+- Top banner: promotional message bar with dark background (#111111) and white text
 
 ### Image Treatment
-- Product screenshots in white cards with oat borders
-- Colorful illustrated sections with swatch background colors
-- 8px–24px radius on images
-- Full-width colorful section backgrounds
 
-### Distinctive Components
+- Hero images: full-bleed, no border radius, edge-to-edge
+- Product grid: square (1:1) or 4:3 aspect ratio, no border radius
+- Category cards: 16:9 or 4:3, full-bleed with text overlay
+- Image placeholder: Grey-100 (`#F5F5F5`) solid background
+- Lazy loading: native loading="lazy", skeleton uses #F5F5F5 bg
+- Product hover: secondary image swap (front → side view)
 
-**Swatch Color Sections**
-- Full-width sections with swatch-colored backgrounds (matcha green, slushie cyan, ube purple, lemon gold)
-- White text on dark swatches, black text on light swatches
-- Each section tells a distinct product story through its color
+### Promotional Banners
 
-**Playful Hover Buttons**
-- Rotate -8deg + translate upward on hover
-- Hard offset shadow (`-7px 7px`) instead of soft blur
-- Background transitions to contrasting swatch color
-- Creates a physical, toy-like interaction quality
-
-**Dashed Border Elements**
-- Dashed borders (`1px dashed #dad4c8`) alongside solid borders
-- Used for secondary containers and decorative elements
-- Adds a hand-drawn, craft-like quality
+- Full-width dark (`#111111`) background with white text
+- Tight padding (8-12px vertical)
+- Centered text, 12px/500 Helvetica Now Text Medium
+- Used for shipping promotions, member benefits, sale announcements
 
 ## 5. Layout Principles
 
 ### Spacing System
-- Base unit: 8px
-- Scale: 1px, 2px, 4px, 6.4px, 8px, 12px, 12.8px, 16px, 18px, 20px, 24px
+
+Base unit: 4px (primary grid is 8px multiples)
+
+| Token | Value | Use |
+|-------|-------|-----|
+| space-1 | 4px | Tight icon gaps, inline spacing |
+| space-2 | 8px | Base unit, button icon gaps |
+| space-3 | 12px | Card internal padding, tight margins |
+| space-4 | 16px | Standard padding, nav spacing |
+| space-5 | 20px | Product card gaps |
+| space-6 | 24px | Section internal padding, grid gaps |
+| space-7 | 32px | Section breaks |
+| space-8 | 48px | Major section padding |
+| space-9 | 64px | Hero section padding |
+| space-10 | 80px | Large section spacing |
 
 ### Grid & Container
-- Max content width centered
-- Feature sections alternate between white cards and colorful swatch backgrounds
-- Card grids: 2–3 columns on desktop
-- Full-width colorful sections break the grid
-- Footer with generous 40px radius container
+
+- Max container width: 1920px
+- Standard content width: ~1440px with horizontal padding
+- Product grid: 3-column on desktop, 2-column on tablet, 1-column on mobile
+- Category grid: 3-column with full-bleed images
+- Grid gap: 4-12px between product cards (intentionally tight)
+- Horizontal padding: 48px desktop, 24px tablet, 16px mobile
 
 ### Whitespace Philosophy
-- **Warm, generous breathing**: The cream background provides a warm rest between content blocks. Spacing is generous but not austere — it feels inviting, like a well-set table.
-- **Color as spatial rhythm**: The alternating swatch-colored sections create visual rhythm through hue rather than just whitespace. Each color section is its own "room."
-- **Craft-like density inside cards**: Within cards, content is compact and well-organized, contrasting with the generous outer spacing.
+
+Nike's whitespace strategy is deliberately aggressive — not in the luxurious, breathing way of a fashion brand, but in a compressed, high-density way that fills every pixel with either content or intentional absence. Product grids use minimal gaps (4-12px) to create a sense of abundance and choice. Section breaks are generous (48-80px) to separate shopping contexts. The overall effect is a store that feels packed with product while remaining navigable — like a well-organized athletic superstore.
 
 ### Border Radius Scale
-- Sharp (4px): Ghost buttons, inputs
-- Standard (8px): Small cards, images, links
-- Badge (11px): Tag badges
-- Card (12px): Standard cards, buttons
-- Feature (24px): Feature cards, images, panels
-- Section (40px): Large sections, footer, containers
-- Pill (1584px): CTAs, pill-shaped buttons
+
+| Value | Context |
+|-------|---------|
+| 0px | Product images, hero photography (sharp edges) |
+| 8px | Form inputs (non-search) |
+| 18px | Small interactive elements |
+| 20px | Containers, cards with UI content |
+| 24px | Search inputs, medium pills |
+| 30px | Buttons, tags, filters (full pill) |
+| 50% | Circular icon buttons, avatar placeholders |
 
 ## 6. Depth & Elevation
 
 | Level | Treatment | Use |
 |-------|-----------|-----|
-| Flat (Level 0) | No shadow, cream canvas | Page background |
-| Clay Shadow (Level 1) | `rgba(0,0,0,0.1) 0px 1px 1px, rgba(0,0,0,0.04) 0px -1px inset, rgba(0,0,0,0.05) 0px -0.5px` | Cards, buttons — multi-layer with inset highlight |
-| Hover Hard (Level 2) | `rgb(0,0,0) -7px 7px` | Hover state — playful hard offset shadow |
-| Focus (Level 3) | `rgb(20, 110, 245) solid 2px` | Keyboard focus ring |
+| Flat | No shadow, no border | Default state for everything |
+| Divider | `0px -1px 0px 0px #E5E5E5 inset` | Subtle inset line between sections |
+| Focus | `0 0 0 2px rgba(39, 93, 197, 1)` | Keyboard focus ring |
+| Overlay | Dark scrim over photography | Text-on-image legibility |
 
-**Shadow Philosophy**: Clay's shadow system is uniquely three-layered: a downward cast (`0px 1px 1px`), an upward inset highlight (`0px -1px 1px inset`), and a subtle edge (`0px -0.5px 1px`). This creates a "pressed into clay" quality where elements feel both raised AND embedded — like a clay tablet where content is stamped into the surface. The hover hard shadow (`-7px 7px`) is deliberately retro-graphic, referencing print-era drop shadows and adding physical playfulness.
+Nike's elevation philosophy is radically flat. There are no card shadows, no hover lifts, no floating elements. Depth is communicated exclusively through color — dark sections recede, light sections advance, grey shifts indicate state changes. This flatness reinforces the athletic, no-nonsense brand personality: no visual frills, just direct communication. The only "shadow" in the entire system is a 1px inset divider line and the accessibility-required focus ring.
 
 ### Decorative Depth
-- Full-width swatch-colored sections create dramatic depth through color contrast
-- Dashed borders add visual texture alongside solid borders
-- Product illustrations with warm, organic art style
+
+- **Hero photography overlays**: Dark gradient scrims over full-bleed photography for text readability
+- **Product background gradients**: Colored backgrounds behind hero product shots (e.g., red shoe on red gradient)
+- **Banner bars**: Solid dark (#111111) promotional strips at page top
 
 ## 7. Do's and Don'ts
 
 ### Do
-- Use warm cream (`#faf9f7`) as the page background — the warmth is the identity
-- Apply all 5 OpenType stylistic sets on Roobert headings: `"ss01", "ss03", "ss10", "ss11", "ss12"`
-- Use the named swatch palette (Matcha, Slushie, Lemon, Ube, Pomegranate, Blueberry) for section backgrounds
-- Apply the playful hover animation: `rotateZ(-8deg)`, `translateY(-80%)`, hard shadow `-7px 7px`
-- Use warm oat borders (`#dad4c8`) — not neutral gray
-- Mix solid and dashed borders for visual variety
-- Use generous radius: 24px for cards, 40px for sections
-- Use weight 600 exclusively for headings, 500 for UI, 400 for body
+
+- Use Nike Black (#111111) for all primary text — never pure #000000
+- Keep buttons pill-shaped (30px radius) and limited to primary/secondary variants
+- Use full-bleed, edge-to-edge photography for hero sections — no border radius on images
+- Let product photography provide all color vibrancy; keep UI monochromatic
+- Use uppercase Nike Futura ND ONLY for display headlines (96px+)
+- Maintain tight product grid gaps (4-12px) for a dense, abundant feel
+- Use Grey-100 (#F5F5F5) for all input and placeholder backgrounds
+- Reserve color exclusively for semantic meaning (red=error, green=success, blue=link)
+- Use weight 500 (Medium) for all interactive text elements
 
 ### Don't
-- Don't use cool gray backgrounds — the warm cream (`#faf9f7`) is non-negotiable
-- Don't use neutral gray borders (`#ccc`, `#ddd`) — always use the warm oat tones
-- Don't mix more than 2 swatch colors in the same section
-- Don't skip the OpenType stylistic sets — they define Roobert's character
-- Don't use subtle hover effects — the rotation + hard shadow is the signature interaction
-- Don't use small border radius (<12px) on feature cards — the generous rounding is structural
-- Don't use standard shadows (blur-based) — Clay uses hard offset and multi-layer inset
-- Don't forget the uppercase labels with 1.08px tracking — they're the wayfinding system
+
+- Don't add shadows to cards — Nike's elevation model is entirely flat
+- Don't use border radius on product imagery — only UI elements get rounded corners
+- Don't introduce brand colors beyond the grey scale for UI elements
+- Don't use Nike Futura ND below 24px — it's exclusively a display face
+- Don't add hover lift effects — Nike cards don't animate on hover
+- Don't use regular weight (400) for buttons or links — always use 500
+- Don't place colored backgrounds behind UI elements — color is reserved for product contexts
+- Don't use more than two levels of text hierarchy per card (title + body)
+- Don't add decorative dividers — the 1px inset is the only divider pattern
+- Don't soften the contrast — Nike's design deliberately pushes black-on-white to maximum
 
 ## 8. Responsive Behavior
 
 ### Breakpoints
+
 | Name | Width | Key Changes |
 |------|-------|-------------|
-| Mobile Small | <479px | Single column, tight padding |
-| Mobile | 479–767px | Standard mobile, stacked layout |
-| Tablet | 768–991px | 2-column grids, condensed nav |
-| Desktop | 992px+ | Full layout, 3-column grids, expanded sections |
+| Mobile | <640px | Single column, hamburger nav, display text scales down, tight 16px padding |
+| Small Tablet | 640-768px | 2-column product grid begins, nav still collapsed |
+| Tablet | 768-960px | 2-column grids, category cards scale, horizontal padding 24px |
+| Small Desktop | 960-1024px | Nav expands to full horizontal, 3-column product grid |
+| Desktop | 1024-1440px | Full layout, expanded nav, 3-column grids, 48px padding |
+| Large Desktop | >1440px | Max-width container centered, increased margins, hero images full-bleed |
 
 ### Touch Targets
-- Buttons: minimum 6.4px + 12.8px padding for adequate touch area
-- Nav links: 15px font with generous spacing
-- Mobile: full-width buttons for easy tapping
+
+- Minimum touch target: 44x44px (WCAG AAA)
+- Mobile nav icons: 48x48px touch area
+- Product cards: full surface is tappable
+- Filter pills: minimum 36px height with 12px padding
 
 ### Collapsing Strategy
-- Hero: 80px → 60px → smaller display text
-- Navigation: horizontal → hamburger at 767px
-- Feature sections: multi-column → stacked
-- Colorful sections: maintain full-width but compress padding
-- Card grids: 3-column → 2-column → single column
+
+- **Navigation**: Full category links → hamburger menu below 960px; search, favorites, cart icons remain visible
+- **Product grids**: 3-col → 2-col at 960px → 1-col at 640px
+- **Hero sections**: Display text scales from 96px → 64px → 48px; hero images remain full-bleed at all sizes
+- **Category cards**: 3-col → 2-col → 1-col with maintained full-bleed imagery
+- **Section padding**: 80px → 48px → 32px → 24px as viewport narrows
+- **Promotional banner**: text wraps or truncates, maintains dark background
 
 ### Image Behavior
-- Product screenshots scale proportionally
-- Colorful section illustrations adapt to viewport width
-- Rounded corners maintained across breakpoints
+
+- Responsive images via Nike CDN (`c.static-nike.com`) with width parameters
+- Product images: srcset with multiple resolutions (w_320, w_640, w_960, w_1920)
+- Hero images: full-bleed at all breakpoints, aspect ratio shifts (16:9 desktop → 4:3 mobile)
+- Lazy loading: native loading="lazy", grey-100 placeholder during load
+- Art direction: hero crops change between desktop and mobile compositions
 
 ## 9. Agent Prompt Guide
 
 ### Quick Color Reference
-- Background: Warm Cream (`#faf9f7`)
-- Text: Clay Black (`#000000`)
-- Secondary text: Warm Silver (`#9f9b93`)
-- Border: Oat Border (`#dad4c8`)
-- Green accent: Matcha 600 (`#078a52`)
-- Cyan accent: Slushie 500 (`#3bd3fd`)
-- Gold accent: Lemon 500 (`#fbbd41`)
-- Purple accent: Ube 800 (`#43089f`)
-- Pink accent: Pomegranate 400 (`#fc7981`)
+
+- Primary CTA: Nike Black (`#111111`)
+- Background: White (`#FFFFFF`)
+- Secondary surface: Light Gray (`#F5F5F5`)
+- Heading text: Nike Black (`#111111`)
+- Body text / hover: Secondary Text (`#707072`)
+- Border: Border Secondary (`#CACACB`)
+- Error: Nike Red (`#D30005`)
+- Link: Link Blue (`#1151FF`)
 
 ### Example Component Prompts
-- "Create a hero on warm cream (#faf9f7) background. Headline at 80px Roobert weight 600, line-height 1.00, letter-spacing -3.2px, OpenType 'ss01 ss03 ss10 ss11 ss12', black text. Subtitle at 20px weight 400, line-height 1.40, #9f9b93 text. Two buttons: white solid pill (12px radius) and ghost outlined (4px radius, 1px solid #717989)."
-- "Design a colorful section with Matcha 800 (#02492a) background. Heading at 44px Roobert weight 600, letter-spacing -1.32px, white text. Body at 18px weight 400, line-height 1.60, #84e7a5 text. White card inset with oat border (#dad4c8), 24px radius."
-- "Build a button with playful hover: default transparent background, black text, 16px Roobert weight 500. On hover: background #434346, text white, transform rotateZ(-8deg) translateY(-80%), hard shadow rgb(0,0,0) -7px 7px."
-- "Create a card: white background, 1px solid #dad4c8 border, 24px radius. Shadow: rgba(0,0,0,0.1) 0px 1px 1px, rgba(0,0,0,0.04) 0px -1px 1px inset. Title at 32px Roobert weight 600, letter-spacing -0.64px."
-- "Design an uppercase label: 12px Roobert weight 600, text-transform uppercase, letter-spacing 1.08px, OpenType 'ss03 ss10 ss11 ss12'."
+
+- "Create a product hero section with full-bleed edge-to-edge photography, no border radius, a dark gradient overlay for text, and a massive uppercase 96px/500 headline in Nike Futura style with 0.90 line-height and a Nike Black (#111111) pill button (30px radius)"
+- "Design a 3-column product card grid with square images (no border radius), 4px gap between cards, product name in 16px/500 Nike Black (#111111), price in 14px/500, and secondary text in Grey-500 (#707072)"
+- "Build a sticky white navigation bar with a left-aligned logo, centered category links in 16px/500 (#111111) with hover color #707072, and right-aligned search (24px radius, #F5F5F5 background), favorites, and cart icons"
+- "Create a promotional banner strip with #111111 background, white 12px/500 centered text, and 8px vertical padding — full width, no border radius"
+- "Design a secondary outlined button with transparent background, 1.5px #CACACB border, 30px pill radius, 16px/500 #111111 text, hover border darkening to #707072"
 
 ### Iteration Guide
-1. Start with warm cream (#faf9f7) — never cool white
-2. Swatch colors are for full sections, not small accents — go bold with matcha, slushie, ube
-3. Oat borders (#dad4c8) everywhere — dashed variants for decoration
-4. OpenType stylistic sets are mandatory — they make Roobert look like Roobert
-5. Hover animations are the signature — rotation + hard shadow, not subtle fades
-6. Generous radius: 24px cards, 40px sections — nothing looks sharp or corporate
-7. Three weights: 600 (headings), 500 (UI), 400 (body) — strict roles
+
+When refining existing screens generated with this design system:
+1. Focus on ONE component at a time
+2. Reference specific color names and hex codes from this document
+3. Remember: product photography is the color — UI stays monochromatic
+4. Use the grey scale for state changes: #F5F5F5 → #E5E5E5 → #CACACB → #707072
+5. If something feels too colorful in the UI, it probably is — Nike keeps UI greyscale
+6. Display type (Nike Futura) should ALWAYS be uppercase and never below 24px
+7. Body type (Helvetica Now) should almost always be weight 500 for interactive elements

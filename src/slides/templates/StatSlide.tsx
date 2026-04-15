@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from "remotion";
 import { ThemeColors } from "../themes";
 import { Badge } from "../components/Badge";
 import { SlideTitle } from "../components/SlideTitle";
+import { InlineEditable } from "../components/InlineEditable";
 
 interface StatVisual {
   type: "bar" | "ring";
@@ -16,6 +17,8 @@ interface Props {
   title: string;
   stats: { value: string; label: string; visual?: StatVisual }[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 const isLightColor = (hex: string): boolean => {
@@ -114,6 +117,8 @@ export const StatSlide: React.FC<Props> = ({
   title,
   stats,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
   const light = isLightColor(theme.bg);
@@ -137,10 +142,11 @@ export const StatSlide: React.FC<Props> = ({
           width: "100%",
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
 
         <div
+          data-pptx="stat-group"
           style={{
             display: "flex",
             justifyContent: "center",
@@ -165,6 +171,7 @@ export const StatSlide: React.FC<Props> = ({
             return (
               <div
                 key={i}
+                data-pptx="stat-item"
                 style={{
                   opacity,
                   transform: `translateY(${translateY}px)`,
@@ -175,32 +182,68 @@ export const StatSlide: React.FC<Props> = ({
                   flex: 1,
                 }}
               >
-                <div
-                  style={{
-                    color: theme.accent,
-                    fontFamily: theme.fontHeading,
-                    fontWeight: theme.fontWeightHeading ?? 800,
-                    fontSize: 120,
-                    lineHeight: 1,
-                    letterSpacing: theme.titleLetterSpacing ?? "0px",
-                  }}
-                >
-                  {stat.value}
-                </div>
-                {stat.label && (
+                {editable ? (
+                  <InlineEditable
+                    value={stat.value}
+                    onChange={(value) => onFieldEdit?.("stats.value", value, i)}
+                    style={{
+                      color: theme.accent,
+                      fontFamily: theme.fontHeading,
+                      fontWeight: theme.fontWeightHeading ?? 800,
+                      fontSize: 120,
+                      lineHeight: 1,
+                      letterSpacing: theme.titleLetterSpacing ?? "0px",
+                      outline: "none",
+                      cursor: "text",
+                    }}
+                  />
+                ) : (
                   <div
                     style={{
-                      color: theme.text,
-                      fontFamily: theme.fontBody,
-                      fontWeight: theme.fontWeightBody ?? 500,
-                      fontSize: 38,
-                      lineHeight: 1.4,
-                      textAlign: "center",
-                      wordBreak: "keep-all",
+                      color: theme.accent,
+                      fontFamily: theme.fontHeading,
+                      fontWeight: theme.fontWeightHeading ?? 800,
+                      fontSize: 120,
+                      lineHeight: 1,
+                      letterSpacing: theme.titleLetterSpacing ?? "0px",
                     }}
                   >
-                    {stat.label}
+                    {stat.value}
                   </div>
+                )}
+                {stat.label && (
+                  editable ? (
+                    <InlineEditable
+                      value={stat.label}
+                      onChange={(value) => onFieldEdit?.("stats.label", value, i)}
+                      multiline
+                      style={{
+                        color: theme.text,
+                        fontFamily: theme.fontBody,
+                        fontWeight: theme.fontWeightBody ?? 500,
+                        fontSize: 38,
+                        lineHeight: 1.4,
+                        textAlign: "center",
+                        wordBreak: "keep-all",
+                        outline: "none",
+                        cursor: "text",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        color: theme.text,
+                        fontFamily: theme.fontBody,
+                        fontWeight: theme.fontWeightBody ?? 500,
+                        fontSize: 38,
+                        lineHeight: 1.4,
+                        textAlign: "center",
+                        wordBreak: "keep-all",
+                      }}
+                    >
+                      {stat.label}
+                    </div>
+                  )
                 )}
                 {stat.visual?.type === "bar" && (
                   <StatBar

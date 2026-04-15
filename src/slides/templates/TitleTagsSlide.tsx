@@ -5,6 +5,7 @@ import { Tag } from "../types";
 import { Badge } from "../components/Badge";
 import { SlideTitle } from "../components/SlideTitle";
 import { TagList } from "../components/TagList";
+import { InlineEditable } from "../components/InlineEditable";
 
 interface Props {
   badge: string;
@@ -14,6 +15,8 @@ interface Props {
   subtitle?: string;
   tags: Tag[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const TitleTagsSlide: React.FC<Props> = ({
@@ -24,6 +27,8 @@ export const TitleTagsSlide: React.FC<Props> = ({
   subtitle,
   tags,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -50,28 +55,52 @@ export const TitleTagsSlide: React.FC<Props> = ({
           gap: 24,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
         {subtitle && (
-          <div
-            style={{
-              opacity: subtitleOpacity,
-              color: theme.text,
-              fontSize: 55,
-              fontFamily: theme.fontBody,
-              fontWeight: theme.fontWeightBody,
-              lineHeight: theme.bodyLineHeight ?? 1.5,
-              letterSpacing: theme.bodyLetterSpacing ?? "0px",
-              textAlign: "center",
-              whiteSpace: "pre-line",
-              wordBreak: "keep-all",
-            }}
-          >
-            {subtitle}
-          </div>
+          editable ? (
+            <InlineEditable
+              value={subtitle}
+              onChange={(value) => onFieldEdit?.("subtitle", value)}
+              data-pptx="subtitle"
+              multiline
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                textAlign: "center",
+                whiteSpace: "pre-line",
+                wordBreak: "keep-all",
+                outline: "none",
+                cursor: "text",
+              }}
+            />
+          ) : (
+            <div
+              data-pptx="subtitle"
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                textAlign: "center",
+                whiteSpace: "pre-line",
+                wordBreak: "keep-all",
+              }}
+            >
+              {subtitle}
+            </div>
+          )
         )}
-        <div style={{ marginTop: 20 }}>
-          <TagList tags={tags} theme={theme} />
+        <div data-pptx="tag-list" style={{ marginTop: 20 }}>
+          <TagList tags={tags} theme={theme} editable={editable} onTagChange={(i, v) => onFieldEdit?.("tags", v, i)} />
         </div>
       </div>
     </AbsoluteFill>
