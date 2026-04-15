@@ -3,7 +3,7 @@ import { SlideData, ThemeDirective } from "../slides/types";
 import { useEditor } from "./useEditorStore";
 import { SLIDE_TYPE_LABELS, createSlide } from "./slideFactory";
 
-const THEMES: ThemeDirective[] = ["dark", "blue", "orange", "yellow", "black", "parchment", "figma"];
+const THEMES: ThemeDirective[] = ["dark", "blue", "orange", "yellow", "black"];
 
 export const PropertyPanel: React.FC = () => {
   const { state, dispatch } = useEditor();

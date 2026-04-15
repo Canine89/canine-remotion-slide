@@ -219,7 +219,13 @@ export const EditorSidebar: React.FC = () => {
                   transformOrigin: "top left",
                 }}
               >
-                <StaticSlideFrame slide={slide} frame={getSettledFrameOffset(slide)} />
+                <StaticSlideFrame
+                  slide={slide}
+                  frame={getSettledFrameOffset(slide)}
+                  offsets={state.offsets[i]}
+                  sizes={state.sizes[i]}
+                  layerOrder={state.layerOrders[i]}
+                />
               </div>
             </div>
           </div>

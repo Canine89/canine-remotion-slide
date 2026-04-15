@@ -9,6 +9,7 @@ export interface ContextMenuState { key: string; x: number; y: number }
 
 export interface DragVisuals {
   selectedKey: string | null;
+  selectedKeys: string[];
   mode: InteractionMode;
   snapLines: SnapLine[];
   selectionRect: DOMRect | null;
@@ -59,11 +60,57 @@ function getSlideRect(el: HTMLElement, container: HTMLElement, scale: number): R
   return { left, top, right: left + w, bottom: top + h, cx: left + w / 2, cy: top + h / 2, width: w, height: h };
 }
 
-function collectOtherRects(container: HTMLElement, scale: number, excludeEl: HTMLElement): Rect[] {
+function translateRect(rect: Rect, dx: number, dy: number): Rect {
+  return {
+    left: rect.left + dx,
+    top: rect.top + dy,
+    right: rect.right + dx,
+    bottom: rect.bottom + dy,
+    cx: rect.cx + dx,
+    cy: rect.cy + dy,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function mergeRects(rects: Rect[]): Rect | null {
+  if (rects.length === 0) return null;
+  const left = Math.min(...rects.map((rect) => rect.left));
+  const top = Math.min(...rects.map((rect) => rect.top));
+  const right = Math.max(...rects.map((rect) => rect.right));
+  const bottom = Math.max(...rects.map((rect) => rect.bottom));
+  const width = right - left;
+  const height = bottom - top;
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    width,
+    height,
+    cx: left + width / 2,
+    cy: top + height / 2,
+  };
+}
+
+function rectToDomRect(rect: Rect | null): DOMRect | null {
+  if (!rect) return null;
+  return new DOMRect(rect.left, rect.top, rect.width, rect.height);
+}
+
+function collectOtherRects(container: HTMLElement, scale: number, excludeEls: Set<HTMLElement>): Rect[] {
   const rects: Rect[] = [];
   for (const el of container.querySelectorAll("[data-pptx]")) {
-    if (el === excludeEl || excludeEl.contains(el) || el.contains(excludeEl)) continue;
-    rects.push(getSlideRect(el as HTMLElement, container, scale));
+    const node = el as HTMLElement;
+    let shouldSkip = false;
+    for (const excluded of excludeEls) {
+      if (node === excluded || excluded.contains(node) || node.contains(excluded)) {
+        shouldSkip = true;
+        break;
+      }
+    }
+    if (shouldSkip) continue;
+    rects.push(getSlideRect(node, container, scale));
   }
   rects.push({ left: 0, top: 0, right: 1920, bottom: 1080, cx: 960, cy: 540, width: 1920, height: 1080 });
   return rects;
@@ -107,10 +154,10 @@ function focusEditable(el: HTMLElement) {
   c?.focus();
 }
 
-function readSelectionRect(el: HTMLElement | null, container: HTMLElement | null, scale: number): DOMRect | null {
-  if (!el || !container) return null;
-  const r = getSlideRect(el, container, scale);
-  return new DOMRect(r.left, r.top, r.width, r.height);
+function readSelectionRect(els: HTMLElement[], container: HTMLElement | null, scale: number): DOMRect | null {
+  if (els.length === 0 || !container) return null;
+  const rect = mergeRects(els.map((el) => getSlideRect(el, container, scale)));
+  return rectToDomRect(rect);
 }
 
 // ── Hook ──
@@ -126,6 +173,7 @@ export function useObjectDrag(
   // 렌더링에 필요한 시각 상태만 useState
   const [visuals, setVisuals] = useState<DragVisuals>({
     selectedKey: null, mode: "idle",
+    selectedKeys: [],
     snapLines: [], selectionRect: null, contextMenu: null,
   });
 
@@ -133,7 +181,10 @@ export function useObjectDrag(
   const dragging = useRef(false);
   const dragEl = useRef<HTMLElement | null>(null);
   const dragKey = useRef<string | null>(null);
+  const selectedEls = useRef<HTMLElement[]>([]);
   const dragOrigin = useRef({ mx: 0, my: 0, ox: 0, oy: 0 });
+  const groupOrigins = useRef<Record<string, ObjectOffset>>({});
+  const groupBaseRects = useRef<Record<string, Rect>>({});
   const didMove = useRef(false);
 
   // 최신 offsets를 ref로 유지 (클로저 stale 방지)
@@ -162,8 +213,7 @@ export function useObjectDrag(
 
   // 선택 rect 재계산
   const refreshSelectionRect = useCallback(() => {
-    const el = dragEl.current;
-    const rect = readSelectionRect(el, containerRef.current, scaleRef.current);
+    const rect = readSelectionRect(selectedEls.current, containerRef.current, scaleRef.current);
     setVisuals(v => ({ ...v, selectionRect: rect }));
   }, [containerRef]);
 
@@ -175,8 +225,11 @@ export function useObjectDrag(
     dragging.current = false;
     dragEl.current = null;
     dragKey.current = null;
+    selectedEls.current = [];
+    groupOrigins.current = {};
+    groupBaseRects.current = {};
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    setVisuals({ selectedKey: null, mode: "idle", snapLines: [], selectionRect: null, contextMenu: null });
+    setVisuals({ selectedKey: null, selectedKeys: [], mode: "idle", snapLines: [], selectionRect: null, contextMenu: null });
   }, []);
 
   // ── PointerDown (좌클릭만) ──
@@ -203,22 +256,80 @@ export function useObjectDrag(
     const key = getElementKey(pptxEl);
     const off = offsetsRef.current[key] ?? { x: 0, y: 0 };
     const slide = toSlideCoords(e.clientX, e.clientY, c, scaleRef.current);
+    const isAlreadySelected = visuals.selectedKeys.includes(key);
+
+    if (e.shiftKey) {
+      dragging.current = false;
+      didMove.current = false;
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+
+      let nextKeys = visuals.selectedKeys;
+      let nextEls = selectedEls.current;
+
+      if (isAlreadySelected) {
+        nextKeys = visuals.selectedKeys.filter((selected) => selected !== key);
+        nextEls = selectedEls.current.filter((selected) => getElementKey(selected) !== key);
+      } else {
+        nextKeys = [...visuals.selectedKeys, key];
+        nextEls = [...selectedEls.current, pptxEl];
+      }
+
+      selectedEls.current = nextEls;
+      dragEl.current = nextEls[nextEls.length - 1] ?? null;
+      dragKey.current = nextKeys[nextKeys.length - 1] ?? null;
+
+      setVisuals({
+        selectedKey: dragKey.current ? dragKey.current : null,
+        selectedKeys: nextKeys,
+        mode: nextKeys.length > 0 ? "selected" : "idle",
+        snapLines: [],
+        selectionRect: readSelectionRect(nextEls, c, scaleRef.current),
+        contextMenu: null,
+      });
+      return;
+    }
+
+    const activeSelection =
+      isAlreadySelected && visuals.selectedKeys.length > 1
+        ? visuals.selectedKeys
+        : [key];
+    const activeElements =
+      isAlreadySelected && visuals.selectedKeys.length > 1
+        ? selectedEls.current.filter((selected) => activeSelection.includes(getElementKey(selected)))
+        : [pptxEl];
 
     // ref 업데이트 (리렌더 없이)
     dragging.current = true;
     dragEl.current = pptxEl;
     dragKey.current = key;
     dragOrigin.current = { mx: slide.x, my: slide.y, ox: off.x, oy: off.y };
+    selectedEls.current = activeElements;
+    groupOrigins.current = Object.fromEntries(
+      activeSelection.map((selectedKey) => [
+        selectedKey,
+        offsetsRef.current[selectedKey] ?? { x: 0, y: 0 },
+      ]),
+    );
+    groupBaseRects.current = Object.fromEntries(
+      activeElements.map((selected) => [getElementKey(selected), getSlideRect(selected, c, scaleRef.current)]),
+    );
     didMove.current = false;
 
     // 시각 업데이트
-    const rect = readSelectionRect(pptxEl, c, scaleRef.current);
-    setVisuals({ selectedKey: key, mode: "selected", snapLines: [], selectionRect: rect, contextMenu: null });
+    const rect = readSelectionRect(activeElements, c, scaleRef.current);
+    setVisuals({
+      selectedKey: key,
+      selectedKeys: activeSelection,
+      mode: "selected",
+      snapLines: [],
+      selectionRect: rect,
+      contextMenu: null,
+    });
   }, [containerRef, visuals.mode, deselect]);
 
   // ── PointerMove ──
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current || !dragEl.current) return;
+    if (!dragging.current || !dragEl.current || selectedEls.current.length === 0) return;
     const c = containerRef.current;
     if (!c) return;
 
@@ -232,28 +343,38 @@ export function useObjectDrag(
 
     let nx = dragOrigin.current.ox + dx;
     let ny = dragOrigin.current.oy + dy;
+    let moveDx = nx - dragOrigin.current.ox;
+    let moveDy = ny - dragOrigin.current.oy;
 
-    // 임시 적용 → rect 계산 → 스냅
-    const el = dragEl.current;
-    el.style.transform = `translate(${nx}px, ${ny}px)`;
-    const dRect = getSlideRect(el, c, s);
-    const others = collectOtherRects(c, s, el);
-    const snap = calcSnap(dRect, others);
-    nx += snap.dx;
-    ny += snap.dy;
-    el.style.transform = `translate(${nx}px, ${ny}px)`;
+    const selectedSet = new Set(selectedEls.current);
+    const baseRects = Object.values(groupBaseRects.current);
+    const mergedRect = mergeRects(baseRects.map((rect) => translateRect(rect, moveDx, moveDy)));
+    const others = collectOtherRects(c, s, selectedSet);
+    const snap = calcSnap(mergedRect ?? {
+      left: 0, top: 0, right: 0, bottom: 0, cx: 0, cy: 0, width: 0, height: 0,
+    }, others);
+    moveDx += snap.dx;
+    moveDy += snap.dy;
+
+    for (const el of selectedEls.current) {
+      const key = getElementKey(el);
+      const origin = groupOrigins.current[key] ?? { x: 0, y: 0 };
+      el.style.transform = `translate(${origin.x + moveDx}px, ${origin.y + moveDy}px)`;
+    }
 
     // 선택 rect + 스냅 라인 업데이트
     setVisuals(v => ({
       ...v,
       snapLines: snap.lines,
-      selectionRect: new DOMRect(dRect.left + snap.dx, dRect.top + snap.dy, dRect.width, dRect.height),
+      selectionRect: rectToDomRect(
+        mergeRects(baseRects.map((rect) => translateRect(rect, moveDx, moveDy))),
+      ),
     }));
   }, [containerRef]);
 
   // ── PointerUp ──
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current || !dragEl.current) return;
+    if (!dragging.current || !dragEl.current || selectedEls.current.length === 0) return;
     if (e.button !== 0) return;
     const c = containerRef.current;
     if (!c) return;
@@ -263,22 +384,31 @@ export function useObjectDrag(
       const slide = toSlideCoords(e.clientX, e.clientY, c, s);
       let nx = dragOrigin.current.ox + (slide.x - dragOrigin.current.mx);
       let ny = dragOrigin.current.oy + (slide.y - dragOrigin.current.my);
+      let moveDx = nx - dragOrigin.current.ox;
+      let moveDy = ny - dragOrigin.current.oy;
 
-      const el = dragEl.current;
-      el.style.transform = `translate(${nx}px, ${ny}px)`;
-      const dRect = getSlideRect(el, c, s);
-      const others = collectOtherRects(c, s, el);
-      const snap = calcSnap(dRect, others);
-      nx += snap.dx;
-      ny += snap.dy;
-      el.style.transform = `translate(${nx}px, ${ny}px)`;
+      const selectedSet = new Set(selectedEls.current);
+      const baseRects = Object.values(groupBaseRects.current);
+      const mergedRect = mergeRects(baseRects.map((rect) => translateRect(rect, moveDx, moveDy)));
+      const others = collectOtherRects(c, s, selectedSet);
+      const snap = calcSnap(mergedRect ?? {
+        left: 0, top: 0, right: 0, bottom: 0, cx: 0, cy: 0, width: 0, height: 0,
+      }, others);
+      moveDx += snap.dx;
+      moveDy += snap.dy;
 
-      onOffsetChange(dragKey.current!, { x: nx, y: ny });
+      for (const el of selectedEls.current) {
+        const key = getElementKey(el);
+        const origin = groupOrigins.current[key] ?? { x: 0, y: 0 };
+        const next = { x: origin.x + moveDx, y: origin.y + moveDy };
+        el.style.transform = `translate(${next.x}px, ${next.y}px)`;
+        onOffsetChange(key, next);
+      }
     }
 
     // 드래그 종료, 선택 유지
     dragging.current = false;
-    const rect = readSelectionRect(dragEl.current, c, scaleRef.current);
+    const rect = readSelectionRect(selectedEls.current, c, scaleRef.current);
     setVisuals(v => ({ ...v, snapLines: [], selectionRect: rect }));
   }, [containerRef, onOffsetChange]);
 
@@ -289,8 +419,9 @@ export function useObjectDrag(
     const key = getElementKey(pptxEl);
     dragEl.current = pptxEl;
     dragKey.current = key;
+    selectedEls.current = [pptxEl];
     dragging.current = false;
-    setVisuals(v => ({ ...v, selectedKey: key, mode: "editing", contextMenu: null }));
+    setVisuals(v => ({ ...v, selectedKey: key, selectedKeys: [key], mode: "editing", contextMenu: null }));
     focusEditable(pptxEl);
   }, []);
 
@@ -307,11 +438,12 @@ export function useObjectDrag(
     const key = getElementKey(pptxEl);
     dragEl.current = pptxEl;
     dragKey.current = key;
+    selectedEls.current = [pptxEl];
 
     const c = containerRef.current;
-    const rect = readSelectionRect(pptxEl, c, scaleRef.current);
+    const rect = readSelectionRect([pptxEl], c, scaleRef.current);
     setVisuals({
-      selectedKey: key, mode: "selected",
+      selectedKey: key, selectedKeys: [key], mode: "selected",
       snapLines: [], selectionRect: rect,
       contextMenu: { key, x: e.clientX, y: e.clientY },
     });
@@ -335,7 +467,7 @@ export function useObjectDrag(
       }
 
       // Delete/Backspace — 선택 모드에서만 (편집 모드에서는 텍스트 삭제에 사용)
-      if ((e.key === "Delete" || e.key === "Backspace") && visuals.mode === "selected" && visuals.selectedKey) {
+      if ((e.key === "Delete" || e.key === "Backspace") && visuals.mode === "selected" && visuals.selectedKey && visuals.selectedKeys.length === 1) {
         e.preventDefault();
         const key = visuals.selectedKey;
         deselect();
@@ -347,10 +479,5 @@ export function useObjectDrag(
   }, [visuals.mode, visuals.selectedKey, deselect, onDeleteSelected]);
 
   // 외부 호환 — state 형태로 노출
-  const state: DragVisuals & { isDragging: boolean } = {
-    ...visuals,
-    isDragging: false, // 렌더링용으로는 항상 false (드래그 상태는 ref)
-  };
-
   return { state: visuals, handlePointerDown, handlePointerMove, handlePointerUp, handleDoubleClick, handleContextMenu, closeContextMenu };
 }

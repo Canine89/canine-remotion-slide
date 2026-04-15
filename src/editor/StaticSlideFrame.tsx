@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Internals } from "remotion";
-import { SlideData, SLIDE_DEFAULTS } from "../slides/types";
+import { SlideData } from "../slides/types";
 import { SlideRenderer } from "../slides/SlideRenderer";
 
 /**
@@ -20,8 +20,23 @@ interface Props {
   height?: number;
   editable?: boolean;
   onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
+  offsets?: Record<string, { x: number; y: number }>;
+  sizes?: Record<string, { w: number; h: number }>;
+  layerOrder?: string[];
   style?: React.CSSProperties;
   className?: string;
+}
+
+function getElementKey(el: HTMLElement): string {
+  const pptx = el.getAttribute("data-pptx") ?? "unknown";
+  const parent = el.parentElement;
+  if (parent) {
+    const siblings = Array.from(parent.querySelectorAll(`[data-pptx="${pptx}"]`));
+    if (siblings.length > 1) {
+      return `${pptx}-${siblings.indexOf(el)}`;
+    }
+  }
+  return pptx;
 }
 
 export const StaticSlideFrame: React.FC<Props> = ({
@@ -31,10 +46,14 @@ export const StaticSlideFrame: React.FC<Props> = ({
   height = 1080,
   editable,
   onFieldEdit,
+  offsets,
+  sizes,
+  layerOrder,
   style,
   className,
 }) => {
   const prevFrame = useRef<number | undefined>(undefined);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (window as any).remotion_initialFrame = frame;
@@ -49,9 +68,52 @@ export const StaticSlideFrame: React.FC<Props> = ({
   prevFrame.current = (window as any).remotion_initialFrame;
   (window as any).remotion_initialFrame = frame;
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    for (const el of root.querySelectorAll("[data-pptx]")) {
+      const node = el as HTMLElement;
+      const key = getElementKey(node);
+      const offset = offsets?.[key];
+      node.style.transform =
+        offset && (offset.x || offset.y) ? `translate(${offset.x}px, ${offset.y}px)` : "";
+
+      if (layerOrder && layerOrder.length > 0) {
+        const zIndex = layerOrder.indexOf(key);
+        node.style.zIndex = zIndex >= 0 ? String(zIndex + 1) : "";
+        if (zIndex >= 0) {
+          node.style.position = "relative";
+        }
+      } else {
+        node.style.zIndex = "";
+      }
+    }
+
+    for (const el of root.querySelectorAll("[data-pptx='image'] img, [data-pptx='image'] video")) {
+      const media = el as HTMLElement;
+      const parent = media.closest("[data-pptx='image']") as HTMLElement | null;
+      if (!parent) continue;
+      const key = getElementKey(parent);
+      const size = sizes?.[key];
+      if (size) {
+        media.style.width = `${size.w}px`;
+        media.style.height = `${size.h}px`;
+        media.style.maxWidth = "none";
+        media.style.maxHeight = "none";
+      } else {
+        media.style.width = "";
+        media.style.height = "";
+        media.style.maxWidth = "";
+        media.style.maxHeight = "";
+      }
+    }
+  });
+
   return (
     <Internals.CanUseRemotionHooksProvider>
       <div
+        ref={rootRef}
         className={className}
         style={{
           width,

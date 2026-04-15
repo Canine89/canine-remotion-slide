@@ -224,13 +224,15 @@ export const EditorCanvas: React.FC<{
   useImageInsert(slideRef, handleImageInserted, slideInfo);
 
   // 선택된 요소가 이미지인지 확인
-  const isImageSelected = dragState.selectedKey?.startsWith("image") ?? false;
+  const isImageSelected =
+    dragState.selectedKeys.length === 1 &&
+    (dragState.selectedKey?.startsWith("image") ?? false);
 
   // 리사이즈 핸들 시작
   const handleResizeStart = useCallback(
     (e: React.PointerEvent, handle: string) => {
       const c = slideRef.current;
-      if (!c || !dragState.selectedKey) return;
+      if (!c || !dragState.selectedKey || dragState.selectedKeys.length !== 1) return;
       const el = c.querySelector(`[data-pptx="image"]`) as HTMLElement | null;
       if (!el) return;
       // img 또는 video 자식을 찾아서 리사이즈
@@ -239,7 +241,7 @@ export const EditorCanvas: React.FC<{
         startResize(e, handle, target, dragState.selectedKey);
       }
     },
-    [slideRef, dragState.selectedKey, startResize],
+    [slideRef, dragState.selectedKey, dragState.selectedKeys.length, startResize],
   );
 
   // 레이어 순서 변경 핸들러
@@ -334,6 +336,9 @@ export const EditorCanvas: React.FC<{
             frame={settledFrame}
             editable
             onFieldEdit={handleFieldEdit}
+            offsets={currentOffsets}
+            sizes={currentSizes}
+            layerOrder={currentLayerOrder}
           />
 
           {/* 스냅 가이드 + 선택 박스 */}
@@ -342,6 +347,7 @@ export const EditorCanvas: React.FC<{
             selectionRect={dragState.selectionRect}
             mode={dragState.mode}
             isImage={isImageSelected}
+            selectionCount={dragState.selectedKeys.length}
             onResizeStart={handleResizeStart}
           />
         </div>

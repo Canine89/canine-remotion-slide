@@ -1,24 +1,30 @@
 {
-  "baseTheme": "parchment",
+  "baseTheme": "figma",
   "default": {
-    "bg": "#faf9f7",
-    "title": "#000000",
-    "text": "#55534e",
-    "accent": "#078a52",
+    "bg": "#FFFFFF",
+    "title": "#111111",
+    "text": "#707072",
+    "accent": "#1151FF",
     "badge": [
-      { "bg": "#02492a", "text": "#ffffff" },
-      { "bg": "#43089f", "text": "#ffffff" }
+      { "bg": "#FF5000", "text": "#FFFFFF" },
+      { "bg": "#1151FF", "text": "#FFFFFF" }
     ],
     "badgeDefaultVariant": 0,
-    "titleLetterSpacing": "-3.2px",
-    "titleLineHeight": 1.0,
-    "bodyLetterSpacing": "-0.36px",
-    "bodyLineHeight": 1.6,
-    "badgeRadius": 999,
-    "badgeFontSize": 36,
-    "badgeLetterSpacing": "1.08px",
+    "fontHeading": "'Paperlogy 8 ExtraBold', 'Paperlogy', sans-serif",
+    "fontBody": "'Paperlogy 5 Medium', 'Paperlogy', sans-serif",
+    "fontLabel": "'Paperlogy 8 ExtraBold', 'Paperlogy', sans-serif",
+    "fontWeightHeading": 800,
+    "fontWeightBody": 500,
+    "fontWeightLabel": 800,
+    "titleLetterSpacing": "-1.8px",
+    "titleLineHeight": 1,
     "titleTextStroke": "0px transparent",
     "titleTextShadow": "none",
-    "bulletMarker": "•"
+    "bodyLetterSpacing": "0px",
+    "bodyLineHeight": 1.6,
+    "badgeRadius": 30,
+    "badgeFontSize": 32,
+    "badgeLetterSpacing": "0.4px",
+    "bulletMarker": "—"
   }
 }

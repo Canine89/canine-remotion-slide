@@ -6,6 +6,7 @@ interface Props {
   selectionRect: DOMRect | null;
   mode: InteractionMode;
   isImage?: boolean;
+  selectionCount?: number;
   onResizeStart?: (e: React.PointerEvent, handle: string) => void;
 }
 
@@ -16,11 +17,12 @@ export const SnapGuides: React.FC<Props> = ({
   selectionRect,
   mode,
   isImage,
+  selectionCount = 1,
   onResizeStart,
 }) => {
   if (lines.length === 0 && !selectionRect) return null;
 
-  const showResize = isImage && mode === "selected" && selectionRect;
+  const showResize = isImage && selectionCount === 1 && mode === "selected" && selectionRect;
 
   const handles = selectionRect
     ? [
@@ -66,7 +68,7 @@ export const SnapGuides: React.FC<Props> = ({
         )}
 
         {/* 모서리 핸들 (선택 모드) */}
-        {mode === "selected" && selectionRect && handles.map(h => (
+        {mode === "selected" && selectionCount === 1 && selectionRect && handles.map(h => (
           <rect key={h.id}
             x={h.x} y={h.y} width={HANDLE_SIZE} height={HANDLE_SIZE}
             fill="#fff" stroke="#4a9eff" strokeWidth={2} rx={2}
