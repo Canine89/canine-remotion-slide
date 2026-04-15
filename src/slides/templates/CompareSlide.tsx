@@ -12,6 +12,8 @@ interface Props {
   title: string;
   columns: { heading: string; bullets: string[] }[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const CompareSlide: React.FC<Props> = ({
@@ -21,6 +23,8 @@ export const CompareSlide: React.FC<Props> = ({
   title,
   columns,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -43,8 +47,8 @@ export const CompareSlide: React.FC<Props> = ({
           width: "100%",
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
 
         <div
           style={{
@@ -71,6 +75,7 @@ export const CompareSlide: React.FC<Props> = ({
             return (
               <div
                 key={i}
+                data-pptx="compare-col"
                 style={{
                   opacity,
                   transform: `translateY(${translateY}px)`,
@@ -80,6 +85,22 @@ export const CompareSlide: React.FC<Props> = ({
                 }}
               >
                 <div
+                  data-pptx="compare-heading"
+                  contentEditable={editable}
+                  suppressContentEditableWarning
+                  onInput={editable ? (e) => {
+                    if ((e.nativeEvent as InputEvent).isComposing) return;
+                    const val = e.currentTarget.textContent ?? "";
+                    if (val !== col.heading) onFieldEdit?.("columns.heading", val, i);
+                  } : undefined}
+                  onCompositionEnd={editable ? (e) => {
+                    const val = e.currentTarget.textContent ?? "";
+                    if (val !== col.heading) onFieldEdit?.("columns.heading", val, i);
+                  } : undefined}
+                  onBlur={editable ? (e) => {
+                    const val = e.currentTarget.textContent ?? "";
+                    if (val !== col.heading) onFieldEdit?.("columns.heading", val, i);
+                  } : undefined}
                   style={{
                     color: theme.accent,
                     fontFamily: theme.fontHeading,
@@ -89,6 +110,8 @@ export const CompareSlide: React.FC<Props> = ({
                     wordBreak: "keep-all",
                     paddingBottom: 10,
                     borderBottom: `3px solid ${theme.accent}`,
+                    outline: "none",
+                    cursor: editable ? "text" : undefined,
                   }}
                 >
                   {col.heading}
@@ -99,6 +122,10 @@ export const CompareSlide: React.FC<Props> = ({
                   fontSize={38}
                   startFrame={delay + 10}
                   theme={theme}
+                  editable={editable}
+                  onItemChange={(bulletIdx, val) => onFieldEdit?.("columns.bullets", { colIndex: i, bulletIndex: bulletIdx, value: val })}
+                  onItemAdd={(afterIdx) => onFieldEdit?.("columns.bullets.add", { colIndex: i, afterIndex: afterIdx })}
+                  onItemDelete={(bulletIdx) => onFieldEdit?.("columns.bullets.delete", { colIndex: i, bulletIndex: bulletIdx })}
                 />
               </div>
             );

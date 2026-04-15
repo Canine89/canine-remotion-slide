@@ -9,6 +9,7 @@ import {
 } from "remotion";
 import { ThemeColors } from "../themes";
 import { Badge } from "../components/Badge";
+import { InlineEditable } from "../components/InlineEditable";
 import { SlideTitle } from "../components/SlideTitle";
 import { BulletList } from "../components/BulletList";
 import { ImagePlaceholder } from "../components/ImagePlaceholder";
@@ -36,6 +37,8 @@ interface Props {
   toImage?: string;
   toBullets: string[];
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 const reveal = (frame: number, start: number, end: number, fromX: number) => ({
@@ -65,6 +68,8 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
   toImage,
   toBullets,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
   const gridRef = useRef<HTMLDivElement>(null);
@@ -141,8 +146,8 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
           gap: 22,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
 
         {/* 2열 콘텐츠 (배지 포함) + 화살표 오버레이 */}
         <div
@@ -171,6 +176,9 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
               opacity: leftReveal.opacity,
               transform: `translateX(${leftReveal.translateX}px)`,
             }}
+            editable={editable}
+            onFieldEdit={onFieldEdit}
+            side="from"
           />
 
           <FlowSide
@@ -187,6 +195,9 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
               opacity: rightReveal.opacity,
               transform: `translateX(${rightReveal.translateX}px)`,
             }}
+            editable={editable}
+            onFieldEdit={onFieldEdit}
+            side="to"
           />
 
           {/* 화살표 오버레이 — 배지 위치 측정 기반 */}
@@ -240,7 +251,7 @@ export const EvolutionFlowSlide: React.FC<Props> = ({
 
 const FlowSide: React.FC<{
   badge?: string;
-  badgeRef?: React.RefObject<HTMLDivElement | null>;
+  badgeRef?: React.RefObject<HTMLDivElement>;
   title?: string;
   image?: string;
   bullets: string[];
@@ -249,9 +260,13 @@ const FlowSide: React.FC<{
   theme: ThemeColors;
   align: "left" | "right";
   style: React.CSSProperties;
-}> = ({ badge, badgeRef, title, image, bullets, titleColor, textColor, theme, align, style }) => {
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
+  side?: "from" | "to";
+}> = ({ badge, badgeRef, title, image, bullets, titleColor, textColor, theme, align, style, editable, onFieldEdit, side }) => {
   return (
     <div
+      data-pptx="flow-side"
       style={{
         ...style,
         display: "flex",
@@ -268,25 +283,46 @@ const FlowSide: React.FC<{
               bgColor={theme.badge[1]?.bg ?? theme.badge[0].bg}
               textColor={theme.badge[1]?.text ?? theme.badge[0].text}
               theme={theme}
+              editable={editable}
+              onTextChange={(value) => onFieldEdit?.(`${side}Badge`, value)}
             />
           </div>
         </div>
       ) : null}
 
       {title ? (
-        <div
-          style={{
-            color: titleColor,
-            fontFamily: theme.fontHeading,
-            fontWeight: theme.fontWeightHeading ?? 800,
-            fontSize: 48,
-            lineHeight: 1.15,
-            wordBreak: "keep-all",
-            textAlign: "left",
-          }}
-        >
-          {title}
-        </div>
+        editable ? (
+          <InlineEditable
+            value={title}
+            onChange={(value) => onFieldEdit?.(`${side}Title`, value)}
+            multiline
+            style={{
+              color: titleColor,
+              fontFamily: theme.fontHeading,
+              fontWeight: theme.fontWeightHeading ?? 800,
+              fontSize: 48,
+              lineHeight: 1.15,
+              wordBreak: "keep-all",
+              textAlign: "left",
+              outline: "none",
+              cursor: "text",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              color: titleColor,
+              fontFamily: theme.fontHeading,
+              fontWeight: theme.fontWeightHeading ?? 800,
+              fontSize: 48,
+              lineHeight: 1.15,
+              wordBreak: "keep-all",
+              textAlign: "left",
+            }}
+          >
+            {title}
+          </div>
+        )
       ) : null}
 
       {image ? (
@@ -315,6 +351,10 @@ const FlowSide: React.FC<{
         fontSize={38}
         startFrame={20}
         theme={theme}
+        editable={editable}
+        onItemChange={(i, val) => onFieldEdit?.(`${side}Bullets`, val, i)}
+        onItemAdd={(afterIdx) => onFieldEdit?.(`${side}Bullets.add`, afterIdx)}
+        onItemDelete={(i) => onFieldEdit?.(`${side}Bullets.delete`, i)}
       />
     </div>
   );

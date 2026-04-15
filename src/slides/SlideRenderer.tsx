@@ -13,15 +13,21 @@ import { SplitSlide } from "./templates/SplitSlide";
 import { AbstractSceneSlide } from "./templates/AbstractSceneSlide";
 import { EvolutionFlowSlide } from "./templates/EvolutionFlowSlide";
 
-interface Props {
+export interface EditableProps {
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
+}
+
+interface Props extends EditableProps {
   slide: SlideData;
 }
 
-export const SlideRenderer: React.FC<Props> = ({ slide }) => {
+export const SlideRenderer: React.FC<Props> = ({ slide, editable, onFieldEdit }) => {
   const theme = getTheme(slide.theme);
   const bv = slide.badgeVariant ?? theme.badgeDefaultVariant ?? 0;
   const badgeBg = theme.badge[bv].bg;
   const badgeText = theme.badge[bv].text;
+  const ep = { editable, onFieldEdit };
 
   switch (slide.type) {
     case "title":
@@ -33,6 +39,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "title-image":
@@ -45,6 +52,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "title-tags":
@@ -57,6 +65,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "title-bullets":
@@ -68,6 +77,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "split":
@@ -80,6 +90,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "abstract-scene":
@@ -93,6 +104,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "stat":
@@ -104,6 +116,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "quote":
@@ -116,6 +129,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "steps":
@@ -127,6 +141,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "compare":
@@ -138,6 +153,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
     case "evolution-flow":
@@ -156,6 +172,7 @@ export const SlideRenderer: React.FC<Props> = ({ slide }) => {
           theme={theme}
           badgeBg={badgeBg}
           badgeText={badgeText}
+          {...ep}
         />
       );
   }

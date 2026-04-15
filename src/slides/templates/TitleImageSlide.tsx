@@ -11,6 +11,7 @@ import { ThemeColors } from "../themes";
 import { Badge } from "../components/Badge";
 import { SlideTitle } from "../components/SlideTitle";
 import { ImagePlaceholder } from "../components/ImagePlaceholder";
+import { InlineEditable } from "../components/InlineEditable";
 
 interface Props {
   badge: string;
@@ -20,6 +21,8 @@ interface Props {
   subtitle?: string;
   image: string;
   theme: ThemeColors;
+  editable?: boolean;
+  onFieldEdit?: (field: string, value: unknown, subIndex?: number) => void;
 }
 
 export const TitleImageSlide: React.FC<Props> = ({
@@ -30,6 +33,8 @@ export const TitleImageSlide: React.FC<Props> = ({
   subtitle,
   image,
   theme,
+  editable,
+  onFieldEdit,
 }) => {
   const frame = useCurrentFrame();
 
@@ -69,28 +74,53 @@ export const TitleImageSlide: React.FC<Props> = ({
           maxWidth: 1600,
         }}
       >
-        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} />
-        <SlideTitle text={title} color={theme.title} theme={theme} />
+        <Badge text={badge} bgColor={badgeBg} textColor={badgeText} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("badge", v)} />
+        <SlideTitle text={title} color={theme.title} theme={theme} editable={editable} onTextChange={(v) => onFieldEdit?.("title", v)} />
         {subtitle && (
-          <div
-            style={{
-              opacity: subtitleOpacity,
-              color: theme.text,
-              fontSize: 55,
-              fontFamily: theme.fontBody,
-              fontWeight: theme.fontWeightBody,
-              lineHeight: theme.bodyLineHeight ?? 1.5,
-              letterSpacing: theme.bodyLetterSpacing ?? "0px",
-              wordBreak: "keep-all",
-              textAlign: "center",
-              marginTop: 4,
-            }}
-          >
-            {subtitle}
-          </div>
+          editable ? (
+            <InlineEditable
+              value={subtitle}
+              onChange={(value) => onFieldEdit?.("subtitle", value)}
+              data-pptx="subtitle"
+              multiline
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                wordBreak: "keep-all",
+                textAlign: "center",
+                marginTop: 4,
+                outline: "none",
+                cursor: "text",
+              }}
+            />
+          ) : (
+            <div
+              data-pptx="subtitle"
+              style={{
+                opacity: subtitleOpacity,
+                color: theme.text,
+                fontSize: 55,
+                fontFamily: theme.fontBody,
+                fontWeight: theme.fontWeightBody,
+                lineHeight: theme.bodyLineHeight ?? 1.5,
+                letterSpacing: theme.bodyLetterSpacing ?? "0px",
+                wordBreak: "keep-all",
+                textAlign: "center",
+                marginTop: 4,
+              }}
+            >
+              {subtitle}
+            </div>
+          )
         )}
 
         <div
+          data-pptx="image"
           style={{
             opacity: imageOpacity,
             transform: `translateY(${imageTranslateY}px)`,

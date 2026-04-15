@@ -10,6 +10,7 @@
     "slides:use": "node src/scripts/slide-markdown.mjs use",
     "slides:preview": "node src/scripts/slide-markdown.mjs preview",
     "slides:present": "node src/scripts/slide-markdown.mjs present",
+    "slides:edit": "node src/scripts/slide-markdown.mjs edit",
     "slides:render": "node src/scripts/slide-markdown.mjs render",
     "slides:pdf": "node src/scripts/slide-markdown.mjs pdf"
   },

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "slides": [
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {
+        "image": {
+          "w": 1150,
+          "h": 653
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {
+        "bullet-item-0": {
+          "x": 0,
+          "y": -5.5859375
+        },
+        "title": {
+          "x": 0,
+          "y": 100.5234375
+        },
+        "badge": {
+          "x": 0,
+          "y": 79.66015625
+        }
+      },
+      "sizes": {
+        "image": {
+          "w": 734,
+          "h": 414
+        }
+      },
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    },
+    {
+      "offsets": {},
+      "sizes": {},
+      "layerOrder": []
+    }
+  ]
+}

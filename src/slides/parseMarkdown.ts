@@ -307,6 +307,7 @@ export function parseSlideMarkdown(raw: string): SlideData[] {
         const tagText = trimmed.slice(2);
         for (const t of tagText.split(",")) {
           const tag = t.trim();
+          if (!tag) continue;
           const accentMatch = tag.match(/^\*(.+)\*$/);
           if (accentMatch) {
             tags.push({ text: accentMatch[1] });
