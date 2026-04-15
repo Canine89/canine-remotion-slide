@@ -136,4 +136,5 @@ theme: dark
 - "타임라인 확인", "Remotion Studio" → `slides:preview`
 - "영상 뽑아", "렌더해" → `slides:render`
 - "PDF", "인쇄", "공유용" → `slides:pdf`
+
 - 쇼츠를 따로 요청하지 않았으면 쇼츠 렌더를 하지 않는다

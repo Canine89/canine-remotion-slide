@@ -42,6 +42,7 @@ export const TagList: React.FC<Props> = ({ tags, startFrame = 40, theme }) => {
         return (
           <div
             key={i}
+            data-pptx="tag"
             style={{
               opacity,
               transform: `scale(${scale})`,

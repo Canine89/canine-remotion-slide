@@ -31,6 +31,7 @@ export const SlideTitle: React.FC<Props> = ({
 
   return (
     <div
+      data-pptx="title"
       style={{
         opacity,
         transform: `translateY(${translateY}px)`,

@@ -47,6 +47,7 @@ export const Badge: React.FC<Props> = ({
 
   return (
     <div
+      data-pptx="badge"
       style={{
         opacity,
         transform: `translateY(${translateY}px) scale(${scale})`,

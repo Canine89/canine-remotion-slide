@@ -20,7 +20,7 @@ export const BulletList: React.FC<Props> = ({
   const frame = useCurrentFrame();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div data-pptx="bullet-list" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {items.map((item, i) => {
         const itemStart = startFrame + i * 8;
 
@@ -44,6 +44,7 @@ export const BulletList: React.FC<Props> = ({
         return (
           <div
             key={i}
+            data-pptx="bullet-item"
             style={{
               opacity,
               transform: `translateY(${translateY}px)`,
